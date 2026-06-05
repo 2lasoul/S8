@@ -1,0 +1,23 @@
+# Environnement
+.env
+
+# Dépendances
+node_modules/
+
+# Build Next.js
+.next/
+
+# Vidéos (déposées directement sur le serveur)
+videos/
+*.mp4
+*.mov
+*.avi
+*.webm
+
+# Docker volumes
+db_data/
+
+# Système
+.DS_Store
+Thumbs.db
+desktop.ini

@@ -1,0 +1,43 @@
+CREATE TABLE IF NOT EXISTS films (
+  id VARCHAR(120) NOT NULL,
+  titre VARCHAR(255) NOT NULL,
+  fichier_url VARCHAR(1000) NOT NULL,
+  duree INT NOT NULL,
+  annee SMALLINT,
+  annee_fin SMALLINT,
+  date_label VARCHAR(100),
+  description TEXT,
+  poster_url VARCHAR(1000),
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS segments (
+  id CHAR(36) NOT NULL,
+  film_id VARCHAR(120) NOT NULL,
+  tc_debut INT NOT NULL,
+  tc_fin INT NOT NULL,
+  titre VARCHAR(255),
+  personnes JSON,
+  evenements JSON,
+  lieux JSON,
+  branches JSON,
+  date_label VARCHAR(100),
+  note TEXT,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  FOREIGN KEY (film_id) REFERENCES films(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS referentiel (
+  id INT AUTO_INCREMENT NOT NULL,
+  categorie ENUM('branche','personne','evenement','lieu') NOT NULL,
+  valeur VARCHAR(255) NOT NULL,
+  couleur VARCHAR(7),
+  branche VARCHAR(255) DEFAULT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  UNIQUE KEY uq_categorie_valeur (categorie, valeur)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
