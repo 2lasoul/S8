@@ -109,7 +109,8 @@ export default function FilmEditorPage() {
     if (video) video.currentTime = Math.max(0, Math.min(video.currentTime + d, video.duration));
   }
 
-  async function handleSave(data: Partial<Segment> & { tc_debut: number | ""; tc_fin: number | "" }) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  async function handleSave(data: any) {
     const url = editSeg ? `/api/segments/${editSeg.id}` : `/api/films/${id}/segments`;
     const method = editSeg ? "PATCH" : "POST";
     const res = await fetch(url, {
