@@ -63,7 +63,8 @@ export default function AdminPage() {
     yearMax: Math.max(...films.filter((f) => f.annee_fin ?? f.annee).map((f) => f.annee_fin ?? f.annee!)),
   };
 
-  async function handleCreate(data: Record<string, string>) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  async function handleCreate(data: any) {
     setError("");
     const res = await fetch("/api/films", {
       method: "POST",
@@ -84,7 +85,8 @@ export default function AdminPage() {
     }
   }
 
-  async function handleUpdate(data: Record<string, string>) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  async function handleUpdate(data: any) {
     if (!editFilm) return;
     setError("");
     const res = await fetch(`/api/films/${editFilm.id}`, {
