@@ -2,6 +2,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import FilmForm from "./components/FilmForm";
+import ThumbnailPicker from "./components/ThumbnailPicker";
 
 interface Film {
   id: string;
@@ -41,6 +42,7 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editFilm, setEditFilm] = useState<Film | null>(null);
+  const [thumbFilm, setThumbFilm] = useState<Film | null>(null);
   const [error, setError] = useState("");
 
   const loadFilms = useCallback(async () => {
@@ -112,6 +114,22 @@ export default function AdminPage() {
 
   return (
     <div style={s.page}>
+      {/* ThumbnailPicker */}
+      {thumbFilm && (
+        <ThumbnailPicker
+          filmId={thumbFilm.id}
+          fichierUrl={thumbFilm.fichier_url}
+          duree={thumbFilm.duree}
+          onSaved={(posterUrl) => {
+            setThumbFilm(null);
+            setFilms((prev) => prev.map((f) =>
+              f.id === thumbFilm.id ? { ...f, poster_url: posterUrl } : f
+            ));
+          }}
+          onCancel={() => setThumbFilm(null)}
+        />
+      )}
+
       {/* Header */}
       <header style={s.header}>
         <h1 style={s.headerTitle}>Archives Super 8</h1>
@@ -222,6 +240,9 @@ export default function AdminPage() {
                     </td>
                     <td style={{ ...s.td, textAlign: "right" }}
                       onClick={(e) => e.stopPropagation()}>
+                      {!f.fichier_url.includes("youtube") && !f.fichier_url.includes("vimeo") && (
+                        <button onClick={() => setThumbFilm(f)} style={s.btnIcon} title="Générer miniature">🖼</button>
+                      )}
                       <button onClick={() => { setEditFilm(f); setShowForm(false); }} style={s.btnIcon}>✎</button>
                       <button onClick={() => handleDelete(f)} style={{ ...s.btnIcon, color: "#e07070" }}>✕</button>
                     </td>

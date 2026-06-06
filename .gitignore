@@ -17,6 +17,10 @@ videos/
 # Docker volumes
 db_data/
 
+# Thumbnails générés (sauf le placeholder)
+thumbnails/*.png
+thumbnails/*.jpg
+
 # Système
 .DS_Store
 Thumbs.db

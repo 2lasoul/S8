@@ -2,9 +2,14 @@ import { NextResponse } from "next/server";
 import { isAdminAuthenticated } from "@/lib/auth";
 import { getAllFilms, createFilm } from "@/lib/films";
 
-export async function GET() {
+export async function GET(req: Request) {
   try {
-    const films = await getAllFilms();
+    const { searchParams } = new URL(req.url);
+    const personne  = searchParams.get("personne");
+    const lieu      = searchParams.get("lieu");
+    const evenement = searchParams.get("evenement");
+    const branche   = searchParams.get("branche");
+    const films = await getAllFilms({ personne, lieu, evenement, branche });
     return NextResponse.json(films);
   } catch (e) {
     console.error(e);

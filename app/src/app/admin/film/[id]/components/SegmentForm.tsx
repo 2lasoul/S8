@@ -132,13 +132,21 @@ export default function SegmentForm({ initial, currentTime, filmDuree, referenti
       </div>
 
       <TagInput label="Personnes" value={form.personnes}
-        onChange={(v) => set("personnes", v)} suggestions={referentiel.personnes} />
+        onChange={(v) => set("personnes", v)} suggestions={referentiel.personnes}
+        categorie="personne"
+        otherTags={[...form.evenements, ...form.lieux, ...form.branches]} />
       <TagInput label="Événements" value={form.evenements}
-        onChange={(v) => set("evenements", v)} suggestions={referentiel.evenements} />
+        onChange={(v) => set("evenements", v)} suggestions={referentiel.evenements}
+        categorie="evenement"
+        otherTags={[...form.personnes, ...form.lieux, ...form.branches]} />
       <TagInput label="Lieux" value={form.lieux}
-        onChange={(v) => set("lieux", v)} suggestions={referentiel.lieux} />
+        onChange={(v) => set("lieux", v)} suggestions={referentiel.lieux}
+        categorie="lieu"
+        otherTags={[...form.personnes, ...form.evenements, ...form.branches]} />
       <TagInput label="Branches" value={form.branches}
-        onChange={(v) => set("branches", v)} suggestions={referentiel.branches} />
+        onChange={(v) => set("branches", v)} suggestions={referentiel.branches}
+        categorie="branche"
+        otherTags={[...form.personnes, ...form.evenements, ...form.lieux]} />
 
       <div style={s.field}>
         <label style={s.label}>Date estimée</label>

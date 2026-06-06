@@ -1,60 +1,112 @@
 "use client";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Frise from "./components/Frise";
 import FilmGrid from "./components/FilmGrid";
 import SearchBar from "./components/SearchBar";
+import SegmentResults from "./components/SegmentResults";
 
 interface Film {
-  id: string;
-  titre: string;
+  id: string; titre: string; fichier_url: string; duree: number;
+  annee: number | null; annee_fin: number | null; date_label: string | null;
+  description: string | null; poster_url: string | null;
+  couverture: number; branches: string[];
+}
+interface BrancheRef { valeur: string; couleur: string | null; }
+interface ActiveFilter { valeur: string; categorie: "personne" | "lieu" | "evenement" | "branche"; }
+interface SegmentResult {
+  id: string; film_id: string; film_titre: string;
   fichier_url: string;
-  duree: number;
-  annee: number | null;
-  annee_fin: number | null;
-  date_label: string | null;
-  description: string | null;
-  poster_url: string | null;
-  couverture: number;
-  branches: string[];
+  tc_debut: number; tc_fin: number; titre: string | null;
+  personnes: string[]; evenements: string[];
+  lieux: string[]; branches: string[];
 }
 
-interface BrancheRef {
-  valeur: string;
-  couleur: string | null;
+export default function Page() {
+  return <Suspense><HomePage /></Suspense>;
 }
 
-export default function HomePage() {
-  const [films, setFilms] = useState<Film[]>([]);
+function HomePage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const [allFilms, setAllFilms] = useState<Film[]>([]);
+  const [filteredFilms, setFilteredFilms] = useState<Film[]>([]);
   const [branches, setBranches] = useState<BrancheRef[]>([]);
   const [activeBranche, setActiveBranche] = useState<string | null>(null);
-  const [searchTags, setSearchTags] = useState<string[]>([]);
+  const [activeFilter, setActiveFilter] = useState<ActiveFilter | null>(null);
+  const [segmentResults, setSegmentResults] = useState<SegmentResult[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const load = useCallback(async () => {
-    const [fRes, rRes] = await Promise.all([
-      fetch("/api/films"),
-      fetch("/api/referentiel?categorie=branche"),
-    ]);
-    if (fRes.ok) setFilms(await fRes.json());
-    if (rRes.ok) setBranches(await rRes.json());
-    setLoading(false);
+  // Lecture des filtres depuis l'URL au chargement
+  useEffect(() => {
+    const p = searchParams.get("personne");
+    const l = searchParams.get("lieu");
+    const e = searchParams.get("evenement");
+    const b = searchParams.get("branche");
+    if (p) setActiveFilter({ valeur: p, categorie: "personne" });
+    else if (l) setActiveFilter({ valeur: l, categorie: "lieu" });
+    else if (e) setActiveFilter({ valeur: e, categorie: "evenement" });
+    else if (b) setActiveBranche(b);
   }, []);
 
-  useEffect(() => { load(); }, [load]);
+  // Chargement des branches
+  useEffect(() => {
+    fetch("/api/referentiel?categorie=branche")
+      .then((r) => r.json()).then(setBranches);
+  }, []);
 
-  // Filtrage des films selon branche active et tags de recherche
-  const filteredFilms = films.filter((f) => {
-    if (activeBranche && !f.branches.includes(activeBranche)) return false;
-    if (searchTags.length > 0) {
-      // Les tags doivent tous être présents (dans branches du film)
-      return searchTags.every((tag) => f.branches.includes(tag));
+  // Chargement des films selon le filtre actif
+  const loadFilms = useCallback(async () => {
+    setLoading(true);
+    const params = new URLSearchParams();
+    if (activeFilter) params.set(activeFilter.categorie, activeFilter.valeur);
+
+    const res = await fetch(`/api/films${params.toString() ? "?" + params : ""}`);
+    if (res.ok) {
+      const data = await res.json();
+      if (activeFilter) {
+        setFilteredFilms(data);
+        // Tous les films sans filtre pour la frise complète
+        const allRes = await fetch("/api/films");
+        if (allRes.ok) setAllFilms(await allRes.json());
+      } else {
+        setAllFilms(data);
+        setFilteredFilms(data);
+      }
     }
-    return true;
-  });
+    setLoading(false);
+  }, [activeFilter]);
+
+  useEffect(() => { loadFilms(); }, [loadFilms]);
+
+  // Chargement des segments résultats quand filtre tag actif
+  useEffect(() => {
+    if (!activeFilter) { setSegmentResults([]); return; }
+    const params = new URLSearchParams();
+    params.set(activeFilter.categorie, activeFilter.valeur);
+    fetch(`/api/segments?${params}`)
+      .then((r) => r.json()).then(setSegmentResults);
+  }, [activeFilter]);
+
+  // Mise à jour de l'URL
+  useEffect(() => {
+    const params = new URLSearchParams();
+    if (activeFilter) params.set(activeFilter.categorie, activeFilter.valeur);
+    else if (activeBranche) params.set("branche", activeBranche);
+    const url = params.toString() ? `/?${params}` : "/";
+    router.replace(url, { scroll: false });
+  }, [activeFilter, activeBranche]);
+
+  // Films à afficher dans la grille (filtre branche local)
+  const displayFilms = activeBranche && !activeFilter
+    ? filteredFilms.filter((f) => f.branches.includes(activeBranche))
+    : filteredFilms;
+
+  const filteredIds = new Set(displayFilms.map((f) => f.id));
 
   return (
     <div style={s.page}>
-      {/* Header */}
       <header style={s.header}>
         <span style={s.logo}>Archives Super 8</span>
         <nav style={s.nav}>
@@ -63,30 +115,37 @@ export default function HomePage() {
       </header>
 
       <main style={s.main}>
-        {/* Barre de recherche */}
         <SearchBar
           branches={branches}
           activeBranche={activeBranche}
-          onBrancheChange={setActiveBranche}
-          onSearchChange={setSearchTags}
+          activeFilter={activeFilter}
+          onBrancheChange={(b) => { setActiveBranche(b); setActiveFilter(null); }}
+          onFilterChange={setActiveFilter}
         />
 
         {loading ? (
-          <p style={s.loading}>Chargement…</p>
-        ) : films.length === 0 ? (
-          <p style={s.empty}>Aucun film dans les archives.</p>
+          <p style={s.muted}>Chargement…</p>
+        ) : allFilms.length === 0 ? (
+          <p style={s.muted}>Aucun film dans les archives.</p>
         ) : (
           <>
-            {/* Frise chronologique */}
             <Frise
-              films={films}
-              filteredIds={new Set(filteredFilms.map((f) => f.id))}
+              films={allFilms}
+              filteredIds={filteredIds}
               branches={branches}
               activeBranche={activeBranche}
             />
 
-            {/* Grille de films */}
-            <FilmGrid films={filteredFilms} branches={branches} />
+            {/* Résultats segments sous la frise si filtre tag actif */}
+            {activeFilter && (
+              <SegmentResults segments={segmentResults} branches={branches} />
+            )}
+
+            {displayFilms.length === 0 ? (
+              <p style={s.muted}>Aucun film pour ce filtre.</p>
+            ) : (
+              <FilmGrid films={displayFilms} branches={branches} />
+            )}
           </>
         )}
       </main>
@@ -100,8 +159,7 @@ const s: Record<string, React.CSSProperties> = {
     padding: "0 2rem", height: "56px", borderBottom: "1px solid #1a1a1a" },
   logo: { fontSize: "1rem", fontWeight: 600, color: "#fff", letterSpacing: "0.03em" },
   nav: { display: "flex", gap: "1.5rem" },
-  navLink: { color: "#666", textDecoration: "none", fontSize: "0.88rem" },
+  navLink: { color: "#555", textDecoration: "none", fontSize: "0.88rem" },
   main: { maxWidth: "1300px", margin: "0 auto", padding: "2rem" },
-  loading: { color: "#555", fontStyle: "italic" },
-  empty: { color: "#555", fontStyle: "italic" },
+  muted: { color: "#555", fontStyle: "italic" },
 };
