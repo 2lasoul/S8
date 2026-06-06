@@ -51,6 +51,7 @@ services:
     restart: unless-stopped
     volumes:
       - ./videos:/usr/share/nginx/html/videos:ro
+      - ./thumbnails:/usr/share/nginx/html/thumbnails:ro
       - ./nginx/videos.conf:/etc/nginx/conf.d/default.conf:ro
     networks:
       - super8_net

@@ -15,10 +15,8 @@ const nextConfig: NextConfig = {
   },
   async rewrites() {
     return [
-      {
-        source: "/videos/:path*",
-        destination: "http://videos/videos/:path*",
-      },
+      { source: "/videos/:path*", destination: "http://videos/videos/:path*" },
+      { source: "/thumbnails/:path*", destination: "http://videos/thumbnails/:path*" },
     ];
   },
 };
