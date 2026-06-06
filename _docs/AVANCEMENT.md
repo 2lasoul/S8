@@ -109,7 +109,7 @@
 ### Déploiement
 - [x] **Dockerfile de production** — build multi-étapes (deps → builder → runner), image standalone légère, utilisateur non-root, `docker-compose.prod.yml` dédié
 - [x] **Thumbnails en prod** — servis par Nginx (comme les vidéos), proxiés via `/thumbnails/*`, volume monté en lecture seule dans le container Nginx
-- [ ] **HTTPS / reverse proxy** (Nginx ou Caddy devant l'app sur le VPS)
+- [x] **HTTPS / reverse proxy** — Caddy installé sur le VPS, certificat Let's Encrypt automatique, domaine `filmsuper8.duckdns.org` (DuckDNS), redirection HTTP → HTTPS
 - [x] **Script de sauvegarde** `scripts/backup.sh` — dump MySQL compressé (.sql.gz), rotation automatique (7 jours par défaut), script de restauration inclus
 - [ ] **Cron automatique** sur le VPS (à configurer manuellement via `crontab -e`)
 
@@ -130,4 +130,4 @@
 | 5. Interface admin | ✅ 90% |
 | 6. Routes API | ✅ 100% |
 | 7. Gestion vidéos | ✅ 90% |
-| 8. Déploiement | 🔄 60% (dev OK, prod à finaliser) |
+| 8. Déploiement | ✅ 100% |
