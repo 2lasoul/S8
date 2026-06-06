@@ -13,6 +13,7 @@ interface Props {
   filteredIds: Set<string>;
   branches: BrancheRef[];
   activeBranche: string | null;
+  hasActiveFilter?: boolean;
 }
 
 function getBrancheColor(branches: BrancheRef[], valeur: string): string {
@@ -24,19 +25,36 @@ function formatDuration(s: number) {
   return h > 0 ? `${h}h${m.toString().padStart(2, "0")}` : `${m}min`;
 }
 
-export default function Frise({ films, filteredIds, branches, activeBranche }: Props) {
+export default function Frise({ films, filteredIds, branches, activeBranche, hasActiveFilter }: Props) {
   const router = useRouter();
   const [tooltip, setTooltip] = useState<{ film: Film; x: number; y: number } | null>(null);
 
   const filmsWithYear = films.filter((f) => f.annee !== null);
   if (filmsWithYear.length === 0) return null;
 
-  const yearMin = Math.min(...filmsWithYear.map((f) => f.annee!)) - 1;
-  const yearMax = Math.max(...filmsWithYear.map((f) => f.annee_fin ?? f.annee!)) + 2;
+  // Films correspondant aux filtres (pour le recadrage)
+  const filteredWithYear = filmsWithYear.filter((f) => filteredIds.has(f.id));
+  const refFilms = hasActiveFilter && filteredWithYear.length > 0 ? filteredWithYear : filmsWithYear;
+
+  // Période de la frise : recadrée sur les résultats si filtre actif
+  const yearMin = Math.min(...refFilms.map((f) => f.annee!)) - 1;
+  const yearMax = Math.max(...refFilms.map((f) => f.annee_fin ?? f.annee!)) + 2;
+
+  // Période complète pour positionner TOUS les films (y compris hors période)
+  const yearMinAll = Math.min(...filmsWithYear.map((f) => f.annee!)) - 1;
+  const yearMaxAll = Math.max(...filmsWithYear.map((f) => f.annee_fin ?? f.annee!)) + 2;
+
   const span = yearMax - yearMin;
 
+  // Position dans la fenêtre affichée
   function pct(year: number) {
     return ((year - yearMin) / span) * 100;
+  }
+
+  // Indique si un film est dans la fenêtre temporelle affichée
+  function inWindow(film: Film) {
+    const fin = film.annee_fin ?? film.annee!;
+    return fin >= yearMin && film.annee! <= yearMax;
   }
 
   // Hauteur des lignes (lane) pour éviter les chevauchements
@@ -79,6 +97,7 @@ export default function Frise({ films, filteredIds, branches, activeBranche }: P
         {lanes.map((lane, li) =>
           lane.map((film) => {
             const isFiltered = filteredIds.has(film.id);
+            if (hasActiveFilter && !inWindow(film)) return null;
             const x1 = pct(film.annee!);
             const x2 = pct((film.annee_fin ?? film.annee!) + 1);
             const w = Math.max(x2 - x1, 1.2);
@@ -123,6 +142,16 @@ export default function Frise({ films, filteredIds, branches, activeBranche }: P
           })
         )}
       </div>
+
+      {/* Indicateur de recadrage */}
+      {hasActiveFilter && filteredWithYear.length > 0 && (
+        <div style={s.recadrageInfo}>
+          Période affichée : {yearMin + 1} – {yearMax - 2}
+          {yearMinAll !== yearMin || yearMaxAll !== yearMax
+            ? ` (étendue complète : ${yearMinAll + 1} – ${yearMaxAll - 2})`
+            : ""}
+        </div>
+      )}
 
       {/* Légende */}
       {branches.length > 0 && (
@@ -169,6 +198,8 @@ const s: Record<string, React.CSSProperties> = {
     overflow: "hidden", textOverflow: "ellipsis", flex: 1 },
   coverageStrip: { position: "absolute", bottom: 0, left: 0, height: "3px", opacity: 0.7 },
   brancheDot: { width: "6px", height: "6px", borderRadius: "50%", flexShrink: 0 },
+  recadrageInfo: { fontSize: "0.75rem", color: "#555", fontStyle: "italic",
+    marginBottom: "0.5rem" },
   legend: { display: "flex", gap: "1.25rem", flexWrap: "wrap", paddingTop: "0.5rem",
     borderTop: "1px solid #1a1a1a" },
   legendItem: { display: "flex", alignItems: "center", gap: "5px",

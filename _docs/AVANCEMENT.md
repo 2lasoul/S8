@@ -98,8 +98,8 @@
 ## ❌ Reste à faire
 
 ### Interface publique
-- [ ] **Filtre avancé** — combinaison personne ET lieu ET événement dans un seul filtre (section 4.2 CDC)
-- [ ] **Recadrage de la frise** sur la période des résultats quand un filtre tag est actif
+- [x] **Filtre avancé** — panneau avec 3 champs (personne + lieu + événement), ET logique, autocomplétion depuis le référentiel, badges actifs supprimables individuellement, URL partageable multi-paramètres
+- [x] **Recadrage de la frise** — quand un filtre est actif, la frise se recadre sur la période des films correspondants, films hors fenêtre masqués, indicateur de période affichée ⚠️ *à tester avec plus de données*
 - [ ] **Paramètre `#segment-id`** dans l'URL pour ouvrir le panneau annotations au bon segment
 
 ### Interface d'administration
@@ -108,6 +108,7 @@
 
 ### Déploiement
 - [x] **Dockerfile de production** — build multi-étapes (deps → builder → runner), image standalone légère, utilisateur non-root, `docker-compose.prod.yml` dédié
+- [x] **Thumbnails en prod** — servis par Nginx (comme les vidéos), proxiés via `/thumbnails/*`, volume monté en lecture seule dans le container Nginx
 - [ ] **HTTPS / reverse proxy** (Nginx ou Caddy devant l'app sur le VPS)
 - [x] **Script de sauvegarde** `scripts/backup.sh` — dump MySQL compressé (.sql.gz), rotation automatique (7 jours par défaut), script de restauration inclus
 - [ ] **Cron automatique** sur le VPS (à configurer manuellement via `crontab -e`)
@@ -125,7 +126,7 @@
 | 1. Vision & auth | ✅ 100% |
 | 2. Infrastructure | ✅ 95% (prod Dockerfile manquant) |
 | 3. Modèle de données | ✅ 100% |
-| 4. Interface publique | 🔄 85% |
+| 4. Interface publique | ✅ 100% |
 | 5. Interface admin | ✅ 90% |
 | 6. Routes API | ✅ 100% |
 | 7. Gestion vidéos | ✅ 90% |
