@@ -31,7 +31,7 @@ echo "[$(date)] Sauvegarde en cours → $BACKUP_FILE"
 
 # Dump compressé
 docker exec "$CONTAINER_NAME" \
-  mysqldump -u"$DB_USER" -p"$DB_PASSWORD" "$DB_NAME" \
+  mysqldump -u"$DB_USER" -p"$DB_PASSWORD" --no-tablespaces "$DB_NAME" \
   | gzip > "$BACKUP_FILE"
 
 echo "[$(date)] Sauvegarde terminée ($(du -sh "$BACKUP_FILE" | cut -f1))"
