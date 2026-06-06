@@ -4,6 +4,17 @@
 
 ---
 
+## Environnements
+
+| Fichier | Usage |
+|---------|-------|
+| `docker-compose.yml` | Développement local (mode dev, hot reload, polling fichiers) |
+| `docker-compose.prod.yml` | Production VPS (build optimisé, standalone, utilisateur non-root) |
+| `app/Dockerfile.dev` | Image dev — `npm run dev` |
+| `app/Dockerfile.prod` | Image prod — build multi-étapes, image finale ~150MB |
+
+---
+
 ## Stack technique
 
 | Couche | Choix | Raison |

@@ -107,7 +107,7 @@
 - [ ] **Bouton ⏱ Auto** dans le formulaire film — détection durée pour les fichiers locaux (fonctionne pour YouTube, à tester pour MP4 locaux)
 
 ### Déploiement
-- [ ] **Dockerfile de production** (build Next.js optimisé, pas le mode dev)
+- [x] **Dockerfile de production** — build multi-étapes (deps → builder → runner), image standalone légère, utilisateur non-root, `docker-compose.prod.yml` dédié
 - [ ] **HTTPS / reverse proxy** (Nginx ou Caddy devant l'app sur le VPS)
 - [x] **Script de sauvegarde** `scripts/backup.sh` — dump MySQL compressé (.sql.gz), rotation automatique (7 jours par défaut), script de restauration inclus
 - [ ] **Cron automatique** sur le VPS (à configurer manuellement via `crontab -e`)

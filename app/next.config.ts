@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  output: process.env.NODE_ENV === "production" ? "standalone" : undefined,
   webpack: (config, { dev }) => {
     if (dev) {
       config.watchOptions = {
