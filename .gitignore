@@ -21,6 +21,9 @@ db_data/
 thumbnails/*.png
 thumbnails/*.jpg
 
+# Sauvegardes DB
+backups/
+
 # Système
 .DS_Store
 Thumbs.db

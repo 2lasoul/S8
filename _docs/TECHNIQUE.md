@@ -205,9 +205,12 @@ docker logs super8_app -f
 # Accès MySQL
 docker exec -it super8_db mysql -usuper8user -psuper8pass super8
 
-# Backup base de données
+# Backup base de données (manuel)
 docker exec super8_db mysqldump -usuper8user -psuper8pass super8 > backup.sql
 
-# Restore
-docker exec -i super8_db mysql -usuper8user -psuper8pass super8 < backup.sql
+# Backup via script (compressé + rotation automatique)
+bash scripts/backup.sh
+
+# Restauration
+bash scripts/restore.sh backups/super8_20260601_020000.sql.gz
 ```

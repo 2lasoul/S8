@@ -109,7 +109,8 @@
 ### Déploiement
 - [ ] **Dockerfile de production** (build Next.js optimisé, pas le mode dev)
 - [ ] **HTTPS / reverse proxy** (Nginx ou Caddy devant l'app sur le VPS)
-- [ ] **Sauvegarde automatique** de la base de données
+- [x] **Script de sauvegarde** `scripts/backup.sh` — dump MySQL compressé (.sql.gz), rotation automatique (7 jours par défaut), script de restauration inclus
+- [ ] **Cron automatique** sur le VPS (à configurer manuellement via `crontab -e`)
 
 ### Hors CDC (idées)
 - [ ] Responsive mobile (le CDC indique "pas une priorité")
