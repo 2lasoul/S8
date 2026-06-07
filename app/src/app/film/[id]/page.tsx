@@ -96,7 +96,7 @@ export default function FilmPage() {
   useEffect(() => {
     if (!activeSegId || !panelOpen) return;
     const el = segRefs.current[activeSegId];
-    if (el) el.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
   }, [activeSegId, panelOpen]);
 
   if (!film) return <div style={s.loading}>Chargement…</div>;
@@ -170,7 +170,7 @@ export default function FilmPage() {
               <video
                 ref={videoRef}
                 src={film.fichier_url}
-                style={s.video}
+                style={{ ...s.video, maxHeight: panelOpen ? "80vh" : "65vh" }}
                 onTimeUpdate={(e) => setCurrentTime(e.currentTarget.currentTime)}
                 onPlay={() => setPlaying(true)}
                 onPause={() => setPlaying(false)}
@@ -197,10 +197,13 @@ export default function FilmPage() {
                 <button onClick={captureFrame} disabled={capturing} style={s.btnCtrl} title="Capturer la frame">
                   📷
                 </button>
+                <button onClick={() => videoRef.current?.requestFullscreen()} style={s.btnCtrl} title="Plein écran">
+                  ⛶
+                </button>
               </div>
 
               {/* Barre segments sous les contrôles */}
-              <div style={s.segBar}>
+              {!panelOpen && <div style={s.segBar}>
                 {timeline.map((item, i) => {
                   const dur = item.type === "segment"
                     ? item.seg.tc_fin - item.seg.tc_debut
@@ -220,20 +223,34 @@ export default function FilmPage() {
                   }
                   return <div key={i} style={{ ...s.segBarGap, width: `${pct}%` }} />;
                 })}
-              </div>
+              </div>}
 
               {/* Segment actif sous les contrôles */}
-              {activeSeg && (
+              {!panelOpen && activeSeg && (
                 <div style={s.activeSegStrip}>
-                  <span style={s.activeSegTc}>{fmt(activeSeg.tc_debut)} → {fmt(activeSeg.tc_fin)}</span>
-                  {activeSeg.titre && <span style={s.activeSegTitre}>{activeSeg.titre}</span>}
-                  <div style={s.activeSegTags}>
-                    {activeSeg.personnes.map((t) => <span key={t} style={{ ...s.tag, ...TAG_COLORS.personne }}>{t}</span>)}
-                    {activeSeg.lieux.map((t) => <span key={t} style={{ ...s.tag, ...TAG_COLORS.lieu }}>{t}</span>)}
-                    {activeSeg.branches.map((t) => (
-                      <span key={t} style={{ ...s.tag, background: getBrancheColor(t) + "33", color: getBrancheColor(t) }}>{t}</span>
-                    ))}
+                  <div style={s.activeSegMeta}>
+                    <span style={s.activeSegTc}>{fmt(activeSeg.tc_debut)} → {fmt(activeSeg.tc_fin)}</span>
+                    {activeSeg.titre && <span style={s.activeSegTitre}>{activeSeg.titre}</span>}
                   </div>
+                  {activeSeg.personnes.length > 0 && (
+                    <div style={s.activeSegRow}>
+                      {activeSeg.personnes.map((t) => <span key={t} style={{ ...s.tag, ...TAG_COLORS.personne }}>{t}</span>)}
+                    </div>
+                  )}
+                  {(activeSeg.lieux.length > 0 || activeSeg.evenements.length > 0) && (
+                    <div style={s.activeSegRow}>
+                      {activeSeg.lieux.map((t) => <span key={t} style={{ ...s.tag, ...TAG_COLORS.lieu }}>{t}</span>)}
+                      {activeSeg.evenements.map((t) => <span key={t} style={{ ...s.tag, ...TAG_COLORS.evenement }}>{t}</span>)}
+                    </div>
+                  )}
+                  {activeSeg.branches.length > 0 && (
+                    <div style={s.activeSegRow}>
+                      {activeSeg.branches.map((t) => (
+                        <span key={t} style={{ ...s.tag, background: getBrancheColor(t) + "33", color: getBrancheColor(t) }}>{t}</span>
+                      ))}
+                    </div>
+                  )}
+                  {activeSeg.note && <p style={s.activeSegNote}>{activeSeg.note}</p>}
                 </div>
               )}
             </>
@@ -286,7 +303,7 @@ export default function FilmPage() {
                       borderLeft: `3px solid ${barColor}`,
                       background: isActive ? "#1e1e1e" : "#141414",
                       opacity: activeSegId && !isActive ? 0.4 : 1,
-                      transition: "opacity 0.3s, background 0.3s",
+                      transition: "opacity 0.1s, background 0.1s",
                     }}
                     onClick={() => { if (!isEmbed) { seek(seg.tc_debut); if (video) video.play(); } }}
                   >
@@ -334,7 +351,7 @@ const s: Record<string, React.CSSProperties> = {
   layout: { display: "grid", flex: 1, overflow: "hidden", minHeight: 0 },
   playerZone: { overflowY: "auto", padding: "1.5rem", minHeight: 0 },
   videoWrap: { borderRadius: "6px", overflow: "hidden", background: "#000" },
-  video: { width: "100%", display: "block", maxHeight: "70vh" },
+  video: { display: "block", width: "auto", maxWidth: "100%", margin: "0 auto", background: "#000" },
   embedWrap: { position: "relative", paddingBottom: "56.25%" },
   embed: { position: "absolute", inset: 0, width: "100%", height: "100%", border: "none" },
   controls: { display: "flex", alignItems: "center", gap: "0.5rem", padding: "0.75rem 0 0.25rem" },
@@ -349,12 +366,15 @@ const s: Record<string, React.CSSProperties> = {
   segBarSeg: { height: "100%", transition: "opacity 0.2s" },
   segBarGap: { height: "100%",
     backgroundImage: "repeating-linear-gradient(45deg,#1e1e1e 0,#1e1e1e 2px,#1a1a1a 2px,#1a1a1a 6px)" },
-  activeSegStrip: { display: "flex", flexWrap: "wrap", alignItems: "center", gap: "0.5rem",
-    padding: "0.5rem 0.75rem", background: "#161616", borderRadius: "4px",
-    marginBottom: "0.75rem", minHeight: "36px" },
+  activeSegStrip: { display: "flex", flexDirection: "column", gap: "0.4rem",
+    padding: "0.6rem 0.75rem", background: "#161616", borderRadius: "4px",
+    marginBottom: "0.75rem" },
+  activeSegMeta: { display: "flex", alignItems: "baseline", gap: "0.75rem", marginBottom: "2px" },
   activeSegTc: { fontSize: "0.78rem", color: "#666", whiteSpace: "nowrap" },
-  activeSegTitre: { fontSize: "0.85rem", color: "#ccc", fontWeight: 500 },
-  activeSegTags: { display: "flex", flexWrap: "wrap", gap: "4px" },
+  activeSegTitre: { fontSize: "0.88rem", color: "#ccc", fontWeight: 500 },
+  activeSegRow: { display: "flex", flexWrap: "wrap", gap: "4px" },
+  activeSegNote: { fontSize: "0.78rem", color: "#888", fontStyle: "italic",
+    margin: "2px 0 0", lineHeight: 1.5, borderTop: "1px solid #222", paddingTop: "0.4rem" },
   description: { fontSize: "0.88rem", color: "#666", lineHeight: 1.6, marginTop: "1rem" },
   panel: { borderLeft: "1px solid #1a1a1a", display: "flex", flexDirection: "column",
     background: "#0a0a0a", overflow: "hidden", minHeight: 0 },
