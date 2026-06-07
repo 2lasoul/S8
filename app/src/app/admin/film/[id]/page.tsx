@@ -181,98 +181,9 @@ export default function FilmEditorPage() {
       </header>
 
       <div style={s.layout}>
-        {/* Colonne gauche : player + formulaire */}
-        <div style={s.left}>
-          {/* Player */}
-          <div style={s.playerWrap}>
-            {!isEmbed ? (
-              <video
-                ref={videoRef}
-                src={film.fichier_url}
-                style={s.video}
-                onTimeUpdate={(e) => setCurrentTime(e.currentTarget.currentTime)}
-                onPlay={() => setPlaying(true)}
-                onPause={() => setPlaying(false)}
-              />
-            ) : (
-              <div style={s.embedWrap}>
-                <iframe
-                  src={isYoutube
-                    ? `https://www.youtube.com/embed/${film.fichier_url.match(/(?:v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/)?.[1]}`
-                    : `https://player.vimeo.com/video/${film.fichier_url.match(/vimeo\.com\/(\d+)/)?.[1]}`}
-                  style={s.embed}
-                  allowFullScreen
-                />
-              </div>
-            )}
 
-            {/* Contrôles (MP4 uniquement) */}
-            {!isEmbed && (
-              <div style={s.controls}>
-                <button onClick={() => skip(-5)} style={s.btnCtrl}>-5s</button>
-                <button onClick={toggle} style={s.btnPlay}>{playing ? "⏸" : "▶"}</button>
-                <button onClick={() => skip(5)} style={s.btnCtrl}>+5s</button>
-                <span style={s.tcDisplay}>{fmt(Math.floor(currentTime))} / {fmt(film.duree)}</span>
-                <input type="range" min={0} max={film.duree} step={1}
-                  value={Math.floor(currentTime)}
-                  onChange={(e) => seek(Number(e.target.value))}
-                  style={s.scrubber} />
-              </div>
-            )}
-
-            {/* Timeline visuelle */}
-            <div style={s.timeline} title="Cliquez sur une zone non annotée pour créer un segment">
-              {(() => {
-              let segIdx = 0;
-              return timeline.map((item, i) => {
-                const pct = ((item.type === "segment" ? item.seg.tc_fin - item.seg.tc_debut : item.tc_fin - item.tc_debut) / film.duree) * 100;
-                if (item.type === "segment") {
-                  const color = SEG_PALETTE[segIdx % SEG_PALETTE.length];
-                  segIdx++;
-                  return (
-                    <div key={i} style={{ ...s.tlSeg, width: `${pct}%`, background: color }}
-                      onClick={() => seek(item.seg.tc_debut)}
-                      title={`${fmt(item.seg.tc_debut)} → ${fmt(item.seg.tc_fin)}${item.seg.titre ? " — " + item.seg.titre : ""}`} />
-                  );
-                }
-                return (
-                  <div key={i} style={{ ...s.tlGap, width: `${pct}%` }}
-                    onClick={() => openGap(item)}
-                    title={`Zone non annotée — cliquer pour créer un segment`} />
-                );
-              });
-            })()}
-              {/* Curseur de lecture */}
-              {!isEmbed && (
-                <div style={{ ...s.tlCursor, left: `${(currentTime / film.duree) * 100}%` }} />
-              )}
-            </div>
-          </div>
-
-          {/* Formulaire segment */}
-          {(showForm || editSeg) && (
-            <div style={s.formWrap}>
-              <SegmentForm
-                key={editSeg?.id ?? "new"}
-                initial={formInitial}
-                currentTime={currentTime}
-                filmDuree={film.duree}
-                referentiel={referentiel}
-                onSave={handleSave}
-                onCancel={() => { setEditSeg(null); setShowForm(false); setNewSegInit(null); }}
-              />
-            </div>
-          )}
-
-          {!showForm && !editSeg && (
-            <button onClick={() => { setEditSeg(null); setNewSegInit(null); setShowForm(true); }} style={s.btnAdd}>
-              + Nouveau segment
-            </button>
-          )}
-        </div>
-
-        {/* Colonne droite : liste segments */}
-        <div style={s.right}>
+        {/* Colonne gauche : liste des segments */}
+        <div style={s.colLeft}>
           <h3 style={s.listTitle}>{segments.length} segment{segments.length !== 1 ? "s" : ""}</h3>
           {(() => {
             let segItemIdx = 0;
@@ -339,6 +250,96 @@ export default function FilmEditorPage() {
             });
           })()}
         </div>
+
+        {/* Colonne centre : player + timeline */}
+        <div style={s.colCenter}>
+          <div style={s.playerWrap}>
+            {!isEmbed ? (
+              <video
+                ref={videoRef}
+                src={film.fichier_url}
+                style={s.video}
+                onTimeUpdate={(e) => setCurrentTime(e.currentTarget.currentTime)}
+                onPlay={() => setPlaying(true)}
+                onPause={() => setPlaying(false)}
+              />
+            ) : (
+              <div style={s.embedWrap}>
+                <iframe
+                  src={isYoutube
+                    ? `https://www.youtube.com/embed/${film.fichier_url.match(/(?:v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/)?.[1]}`
+                    : `https://player.vimeo.com/video/${film.fichier_url.match(/vimeo\.com\/(\d+)/)?.[1]}`}
+                  style={s.embed}
+                  allowFullScreen
+                />
+              </div>
+            )}
+
+            {/* Contrôles (MP4 uniquement) */}
+            {!isEmbed && (
+              <div style={s.controls}>
+                <button onClick={() => skip(-5)} style={s.btnCtrl}>-5s</button>
+                <button onClick={toggle} style={s.btnPlay}>{playing ? "⏸" : "▶"}</button>
+                <button onClick={() => skip(5)} style={s.btnCtrl}>+5s</button>
+                <span style={s.tcDisplay}>{fmt(Math.floor(currentTime))} / {fmt(film.duree)}</span>
+                <input type="range" min={0} max={film.duree} step={1}
+                  value={Math.floor(currentTime)}
+                  onChange={(e) => seek(Number(e.target.value))}
+                  style={s.scrubber} />
+              </div>
+            )}
+
+            {/* Timeline visuelle */}
+            <div style={s.timeline} title="Cliquez sur une zone non annotée pour créer un segment">
+              {(() => {
+                let segIdx = 0;
+                return timeline.map((item, i) => {
+                  const pct = ((item.type === "segment" ? item.seg.tc_fin - item.seg.tc_debut : item.tc_fin - item.tc_debut) / film.duree) * 100;
+                  if (item.type === "segment") {
+                    const color = SEG_PALETTE[segIdx % SEG_PALETTE.length];
+                    segIdx++;
+                    return (
+                      <div key={i} style={{ ...s.tlSeg, width: `${pct}%`, background: color }}
+                        onClick={() => seek(item.seg.tc_debut)}
+                        title={`${fmt(item.seg.tc_debut)} → ${fmt(item.seg.tc_fin)}${item.seg.titre ? " — " + item.seg.titre : ""}`} />
+                    );
+                  }
+                  return (
+                    <div key={i} style={{ ...s.tlGap, width: `${pct}%` }}
+                      onClick={() => openGap(item)}
+                      title="Zone non annotée — cliquer pour créer un segment" />
+                  );
+                });
+              })()}
+              {/* Curseur de lecture */}
+              {!isEmbed && (
+                <div style={{ ...s.tlCursor, left: `${(currentTime / film.duree) * 100}%` }} />
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Colonne droite : formulaire */}
+        <div style={s.colRight}>
+          {(showForm || editSeg) ? (
+            <div style={s.formWrap}>
+              <SegmentForm
+                key={editSeg?.id ?? "new"}
+                initial={formInitial}
+                currentTime={currentTime}
+                filmDuree={film.duree}
+                referentiel={referentiel}
+                onSave={handleSave}
+                onCancel={() => { setEditSeg(null); setShowForm(false); setNewSegInit(null); }}
+              />
+            </div>
+          ) : (
+            <button onClick={() => { setEditSeg(null); setNewSegInit(null); setShowForm(true); }} style={s.btnAdd}>
+              + Nouveau segment
+            </button>
+          )}
+        </div>
+
       </div>
     </div>
   );
@@ -358,9 +359,10 @@ const s: Record<string, React.CSSProperties> = {
   coverageFill: { height: "100%", borderRadius: "2px" },
   coveragePct: { fontSize: "0.8rem", color: "#aaa" },
   navLink: { color: "#666", textDecoration: "none", fontSize: "0.85rem" },
-  layout: { display: "grid", gridTemplateColumns: "1fr 320px", height: "calc(100vh - 52px)" },
-  left: { padding: "1.25rem", overflowY: "auto", borderRight: "1px solid #1a1a1a" },
-  right: { padding: "1rem", overflowY: "auto", background: "#0d0d0d" },
+  layout: { display: "grid", gridTemplateColumns: "280px 1fr 320px", height: "calc(100vh - 52px)" },
+  colLeft:   { padding: "1rem", overflowY: "auto", borderRight: "1px solid #1a1a1a", background: "#0d0d0d" },
+  colCenter: { padding: "1.25rem", overflowY: "auto", borderRight: "1px solid #1a1a1a" },
+  colRight:  { padding: "1.25rem", overflowY: "auto", background: "#0d0d0d" },
   playerWrap: { marginBottom: "1rem" },
   video: { width: "100%", borderRadius: "4px", background: "#000", display: "block" },
   embedWrap: { position: "relative", paddingBottom: "56.25%", background: "#000", borderRadius: "4px" },
