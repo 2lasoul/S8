@@ -173,11 +173,9 @@ export default function Frise({ films, filteredIds, branches, activeBranche, has
       {tooltip && (
         <div style={{ ...s.tooltip, left: tooltip.x + 14, top: tooltip.y - 10 }}>
           <strong>{tooltip.film.titre}</strong>
-          {(tooltip.film.annee || tooltip.film.date_label) && (
-            <span>{tooltip.film.date_label ?? (tooltip.film.annee_fin
-              ? `${tooltip.film.annee} – ${tooltip.film.annee_fin}`
-              : String(tooltip.film.annee))}</span>
-          )}
+          <span>{tooltip.film.date_label || (tooltip.film.annee_fin
+            ? `${tooltip.film.annee} – ${tooltip.film.annee_fin}`
+            : tooltip.film.annee ? String(tooltip.film.annee) : "")}</span>
           <span>{formatDuration(tooltip.film.duree)}</span>
         </div>
       )}
