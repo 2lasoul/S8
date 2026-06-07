@@ -47,6 +47,7 @@
 - [x] **Génération de miniature** *(hors CDC)* — bouton 🖼 sur les films MP4, choix parmi 3 frames (25%/50%/75%), sauvegarde dans `public/thumbnails/`, mise à jour `poster_url`
 - [x] **Formulaire film** — slug auto, détection durée via `<video>`, validation
 - [x] **Éditeur de segments** `/admin/film/:id`
+  - [x] Layout 3 colonnes : segments existants / player / formulaire
   - [x] Player MP4 custom (-5s / ▶ / +5s / scrubber)
   - [x] Timeline visuelle colorée par index de segment
   - [x] Clic zone non annotée → pré-remplit le formulaire
@@ -68,7 +69,7 @@
   - [x] Frise chronologique avec détection de lanes (anti-chevauchement visuel)
   - [x] Blocs colorés par branche, opacité réduite si filtrés
   - [x] Filtres par branche (chips colorés)
-  - [x] Tooltip au survol (titre, période, durée, couverture)
+  - [x] Tooltip au survol (titre, période, durée)
   - [x] Grille de cartes films (poster YouTube auto, barre de couverture, tags branches)
   - [x] **Barre de recherche** avec autocomplétion depuis le référentiel (personnes, lieux, événements, branches)
   - [x] Badge catégorie coloré dans les suggestions (Personne / Lieu / Événement / Branche)

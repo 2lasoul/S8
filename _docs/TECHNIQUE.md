@@ -217,7 +217,12 @@ docker logs super8_app -f
 docker exec -it super8_db mysql -usuper8user -psuper8pass super8
 
 # Backup base de données (manuel)
-docker exec super8_db mysqldump -usuper8user -psuper8pass super8 > backup.sql
+docker exec super8_db mysqldump -u root -prootpassword super8 --no-tablespaces > backup.sql
+
+# Synchroniser la base VPS → local (depuis le VPS)
+docker exec super8_db mysqldump -u root -prootpassword super8 --no-tablespaces --default-character-set=utf8mb4 > /root/S8/dump.sql
+# Puis en local (PowerShell)
+Get-Content dump.sql | docker exec -i super8_db mysql -u root -prootpassword --default-character-set=utf8mb4 super8
 
 # Backup via script (compressé + rotation automatique)
 bash scripts/backup.sh
