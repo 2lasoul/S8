@@ -170,11 +170,20 @@ La route `GET /api/referentiel/cooccurrences?valeur=X&categorie=Y` :
 4. Le TagInput déclenche la requête avec un debounce de 600ms
 
 ### Proxy vidéos
+En développement, Next.js proxie `/videos/*` vers le container Nginx via le réseau Docker interne :
 ```typescript
 // next.config.ts
 rewrites: [{ source: "/videos/:path*", destination: "http://videos/videos/:path*" }]
 ```
-Le container Nginx `videos` n'est pas exposé publiquement — l'app proxie `/videos/*` en interne via le réseau Docker. Support des Range requests pour le seek sans téléchargement complet.
+
+En production, Caddy route `/videos/*` et `/thumbnails/*` **directement** vers le container Nginx (port 3001), court-circuitant complètement Next.js pour réduire la charge CPU :
+```
+# Caddyfile
+handle /videos/* { reverse_proxy localhost:3001 }
+handle /thumbnails/* { reverse_proxy localhost:3001 }
+handle { reverse_proxy localhost:3000 }
+```
+Le container Nginx expose le port 3001 dans `docker-compose.prod.yml`. Support des Range requests pour le seek sans téléchargement complet.
 
 ### Polling fichiers (dev Windows)
 ```typescript

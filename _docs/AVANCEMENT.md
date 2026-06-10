@@ -80,12 +80,16 @@
   - [x] **Lightbox vidéo** *(hors CDC)* — lecture du segment au bon timecode sans quitter la page de recherche (fermeture Échap / clic fond / ✕, lien "Ouvrir le film ↗")
 - [x] **Page film** `/film/:id`
   - [x] Player MP4 custom (-10s / ▶ / +10s / scrubber)
+  - [x] Bouton plein écran ⛶
+  - [x] Hauteur vidéo adaptative : 65vh panneau fermé, 80vh panneau ouvert
+  - [x] Ratio natif 4:3 respecté (Super 8 1440×1080)
   - [x] Embed YouTube / Vimeo (`<iframe>`)
-  - [x] Barre de segments colorée sous le scrubber
+  - [x] Barre de segments colorée sous le scrubber (masquée si panneau ouvert)
   - [x] Capture de frame 📷 (MP4 uniquement)
   - [x] Panneau annotations latéral (320px, scrollable, hauteur contrainte)
-  - [x] Segment actif mis en évidence + scroll automatique
-  - [x] Tags par catégorie et par blocs distincts
+  - [x] Segment actif mis en évidence + scroll centré automatique
+  - [x] Tags par catégorie en 3 blocs distincts (personnes / lieux+événements / branches) + note
+  - [x] Annotation active sous la vidéo masquée si panneau ouvert
   - [x] Séquences non annotées affichées dans le panneau
 
 ---
