@@ -49,6 +49,8 @@ services:
     image: nginx:alpine
     container_name: super8_videos
     restart: unless-stopped
+    ports:
+      - "${VIDEOS_PORT:-3001}:80"
     volumes:
       - ./videos:/usr/share/nginx/html/videos:ro
       - ./thumbnails:/usr/share/nginx/html/thumbnails:ro
