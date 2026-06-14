@@ -48,7 +48,9 @@
 - [x] **Formulaire film** — slug auto, détection durée via `<video>`, validation
 - [x] **Éditeur de segments** `/admin/film/:id`
   - [x] Layout 3 colonnes : segments existants / player / formulaire
-  - [x] Player MP4 custom (-5s / ▶ / +5s / scrubber)
+  - [x] Player MP4 custom (-5s / -1s / ▶ / +1s / +5s / scrubber pleine largeur)
+  - [x] Navigation entre keypoints ◀ ▶ (débuts/fins de segments existants)
+  - [x] Bouton "Forcer 100%" — marque un film comme entièrement annoté indépendamment des segments
   - [x] Timeline visuelle colorée par index de segment
   - [x] Clic zone non annotée → pré-remplit le formulaire
   - [x] Formulaire segment avec boutons ⏱ Ici
@@ -67,7 +69,7 @@
 ### Interface publique (section 4 CDC)
 - [x] **Page d'accueil** `/`
   - [x] Frise chronologique avec détection de lanes (anti-chevauchement visuel)
-  - [x] Blocs colorés par branche, opacité réduite si filtrés
+  - [x] Blocs colorés par branche la plus fréquente dans les segments (triée par occurrence)
   - [x] Filtres par branche (chips colorés)
   - [x] Tooltip au survol (titre, période, durée)
   - [x] Grille de cartes films (poster YouTube auto, barre de couverture, tags branches)

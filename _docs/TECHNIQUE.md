@@ -132,6 +132,10 @@ Vérifié côté serveur (lib/segments.ts) — une erreur `OVERLAP` est renvoyé
 COALESCE(ROUND(SUM(s.tc_fin - s.tc_debut) / f.duree * 100), 0) AS couverture
 ```
 Calculée à chaque requête GET `/api/films`, non stockée en base.
+Si `couverture_forcee = 1` sur le film, la couverture retournée est 100 quel que soit l'état des segments. Permet de marquer un film comme complet quand la précision au timecode n'est pas possible.
+
+### Couleur principale d'un film (frise)
+La couleur affichée est celle de la **branche la plus fréquente** dans les segments du film. `extractBranches()` parse le `GROUP_CONCAT` SQL et trie les branches par nombre d'occurrences — `branches[0]` est toujours la branche dominante.
 
 ### Recherche par tags (page d'accueil)
 La recherche est en deux temps :

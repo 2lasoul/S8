@@ -84,14 +84,20 @@ export async function getAllFilms(filters: FilmFilters = {}): Promise<Film[]> {
 
 function extractBranches(raw: string): string[] {
   if (!raw) return [];
-  const all: string[] = [];
+  const counts: Record<string, number> = {};
   for (const chunk of raw.split("|||")) {
     try {
       const parsed = JSON.parse(chunk);
-      if (Array.isArray(parsed)) all.push(...parsed);
+      if (Array.isArray(parsed)) {
+        for (const b of parsed) {
+          if (b) counts[b] = (counts[b] ?? 0) + 1;
+        }
+      }
     } catch { /* segment sans branches */ }
   }
-  return [...new Set(all.filter(Boolean))];
+  return Object.entries(counts)
+    .sort((a, b) => b[1] - a[1])
+    .map(([b]) => b);
 }
 
 export async function getFilmById(id: string): Promise<Film | null> {
