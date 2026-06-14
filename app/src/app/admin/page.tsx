@@ -16,6 +16,7 @@ interface Film {
   poster_url: string | null;
   couverture: number;
   branches: string[];
+  a_identifier_count: number;
 }
 
 function formatDuration(s: number) {
@@ -221,7 +222,14 @@ export default function AdminPage() {
                     onMouseEnter={(e) => (e.currentTarget.style.background = "#1e1e1e")}
                     onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}>
                     <td style={s.td}>
-                      <span style={s.filmTitre}>{f.titre}</span>
+                      <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                        <span style={s.filmTitre}>{f.titre}</span>
+                        {f.a_identifier_count > 0 && (
+                          <span style={s.badgeIdentifier} title={`${f.a_identifier_count} segment(s) à identifier`}>
+                            ? {f.a_identifier_count}
+                          </span>
+                        )}
+                      </div>
                       <span style={s.filmSlug}>{f.id}</span>
                     </td>
                     <td style={s.td}>{periode(f)}</td>
@@ -294,4 +302,7 @@ const s: Record<string, React.CSSProperties> = {
     color: "#888", padding: "1px 7px", borderRadius: "10px", marginRight: "4px" },
   btnIcon: { background: "none", border: "none", color: "#666", cursor: "pointer",
     fontSize: "1rem", padding: "0.25rem 0.5rem" },
+  badgeIdentifier: { fontSize: "0.7rem", fontWeight: 700, color: "#e0a95c",
+    background: "#3a2a0a", border: "1px solid #e0a95c55", borderRadius: "10px",
+    padding: "1px 7px", whiteSpace: "nowrap" as const },
 };

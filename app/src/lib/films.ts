@@ -16,6 +16,7 @@ export interface Film {
   couverture: number;
   couverture_forcee: number;
   branches: string[];
+  a_identifier_count: number;
 }
 
 export function slugify(titre: string): string {
@@ -64,7 +65,8 @@ export async function getAllFilms(filters: FilmFilters = {}): Promise<Film[]> {
     SELECT
       f.*,
       COALESCE(ROUND(SUM(DISTINCT(s.tc_fin - s.tc_debut)) / f.duree * 100), 0) AS couverture,
-      COALESCE(GROUP_CONCAT(DISTINCT s.branches SEPARATOR '|||'), '') AS branches_raw
+      COALESCE(GROUP_CONCAT(DISTINCT s.branches SEPARATOR '|||'), '') AS branches_raw,
+      SUM(CASE WHEN s.a_identifier = 1 THEN 1 ELSE 0 END) AS a_identifier_count
     FROM films f
     LEFT JOIN segments s ON s.film_id = f.id
     ${hasTagFilter ? `WHERE f.id IN (
@@ -78,7 +80,8 @@ export async function getAllFilms(filters: FilmFilters = {}): Promise<Film[]> {
   return rows.map((r) => {
     const branches = extractBranches(r.branches_raw as string);
     const couverture = r.couverture_forcee ? 100 : (r.couverture ?? 0);
-    return { ...r, couverture, branches };
+    const a_identifier_count = Number(r.a_identifier_count ?? 0);
+    return { ...r, couverture, branches, a_identifier_count };
   }) as Film[];
 }
 

@@ -92,7 +92,13 @@ _WEBV2/
 - **PK** : `id` CHAR(36) — UUID v4
 - **FK** : `film_id` → `films.id` ON DELETE CASCADE
 - Tags stockés en JSON : `personnes`, `evenements`, `lieux`, `branches`
+- `a_identifier TINYINT(1)` — flag "à identifier" : segment dont les personnes/lieux sont inconnus, à soumettre à la famille. Affiché avec badge `?` orange dans l'éditeur et compteur `? N` dans la liste des films.
 - **Contrainte anti-chevauchement** vérifiée côté serveur à chaque CREATE et UPDATE
+
+### Table `pages`
+- **PK** : `cle` VARCHAR(60) — identifiant de la page (ex : `apropos`)
+- `contenu TEXT` — HTML riche sauvegardé via WYSIWYG
+- Seul l'admin peut écrire via `PUT /api/pages/:cle`. Lecture publique via `GET /api/pages/:cle`.
 
 ### Table `referentiel`
 - **PK** : `id` INT AUTO_INCREMENT

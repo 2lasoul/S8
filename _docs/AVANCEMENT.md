@@ -43,7 +43,7 @@
 - [x] `GET /api/referentiel/cooccurrences`
 
 ### Interface d'administration (section 5 CDC)
-- [x] **Liste des films** `/admin` — compteurs, barre de couverture, badges statut
+- [x] **Liste des films** `/admin` — compteurs, barre de couverture, badges statut, badge `? N` si segments à identifier
 - [x] **Génération de miniature** *(hors CDC)* — bouton 🖼 sur les films MP4, choix parmi 3 frames (25%/50%/75%), redimensionnée à 453×340px, sauvegarde dans `public/thumbnails/`, mise à jour `poster_url`
 - [x] **Formulaire film** — slug auto, détection durée via `<video>`, validation
 - [x] **Éditeur de segments** `/admin/film/:id`
@@ -54,6 +54,7 @@
   - [x] Timeline visuelle colorée par index de segment
   - [x] Clic zone non annotée → pré-remplit le formulaire
   - [x] Formulaire segment avec boutons ⏱ Ici
+  - [x] Flag **À identifier** sur les segments — bouton toggle dans le formulaire, badge `? N` orange dans la liste des films et badge `?` dans la liste des segments de l'éditeur
   - [x] TagInput avec autocomplétion depuis le référentiel
   - [x] Suggestions par co-occurrence (seuil 3, badge ↔ Nx)
   - [x] Segment actif mis en évidence (opacité + bordure colorée)
@@ -104,6 +105,10 @@
 ---
 
 ## ❌ Reste à faire
+
+### Hors CDC — réalisé
+- [x] **Page À propos** `/apropos` — deux onglets : "À propos" (WYSIWYG contenteditable, sauvegarde admin via table `pages`) + "Comment naviguer" (statique). Logo header avec fallback texte (`public/img/logo.png`). Composant `SiteLogo` partagé.
+- [x] **Optimisation vidéos** — Caddy route `/videos/*` et `/thumbnails/*` directement vers Nginx (port 3001), sans passer par Next.js
 
 ### Interface publique
 - [x] **Filtre avancé** — panneau avec 3 champs (personne + lieu + événement), ET logique, autocomplétion depuis le référentiel, badges actifs supprimables individuellement, URL partageable multi-paramètres
