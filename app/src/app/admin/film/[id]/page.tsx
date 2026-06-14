@@ -109,6 +109,21 @@ export default function FilmEditorPage() {
     if (video) video.currentTime = Math.max(0, Math.min(video.currentTime + d, video.duration));
   }
 
+  function seekToKeypoint(direction: "prev" | "next") {
+    if (!video) return;
+    const keypoints = [...new Set(
+      segments.flatMap((s) => [s.tc_debut, s.tc_fin])
+    )].sort((a, b) => a - b);
+    const t = video.currentTime;
+    if (direction === "next") {
+      const next = keypoints.find((k) => k > t + 0.5);
+      if (next !== undefined) video.currentTime = next;
+    } else {
+      const prev = [...keypoints].reverse().find((k) => k < t - 0.5);
+      if (prev !== undefined) video.currentTime = prev;
+    }
+  }
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async function toggleCouvertureForce() {
     const newVal = film!.couverture_forcee ? 0 : 1;
@@ -303,6 +318,9 @@ export default function FilmEditorPage() {
                 <button onClick={() => skip(1)} style={s.btnCtrl}>+1s</button>
                 <button onClick={() => skip(5)} style={s.btnCtrl}>+5s</button>
                 <span style={s.tcDisplay}>{fmt(Math.floor(currentTime))} / {fmt(film.duree)}</span>
+                <span style={{ flex: 1 }} />
+                <button onClick={() => seekToKeypoint("prev")} style={s.btnCtrl} title="Début/fin de segment précédent">◀</button>
+                <button onClick={() => seekToKeypoint("next")} style={s.btnCtrl} title="Début/fin de segment suivant">▶</button>
               </div>
             )}
 
