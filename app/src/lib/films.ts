@@ -14,6 +14,7 @@ export interface Film {
   created_at: string;
   updated_at: string;
   couverture: number;
+  couverture_forcee: number;
   branches: string[];
 }
 
@@ -76,7 +77,8 @@ export async function getAllFilms(filters: FilmFilters = {}): Promise<Film[]> {
 
   return rows.map((r) => {
     const branches = extractBranches(r.branches_raw as string);
-    return { ...r, couverture: r.couverture ?? 0, branches };
+    const couverture = r.couverture_forcee ? 100 : (r.couverture ?? 0);
+    return { ...r, couverture, branches };
   }) as Film[];
 }
 
@@ -119,7 +121,7 @@ export async function createFilm(data: Omit<Film, "id" | "created_at" | "updated
 }
 
 export async function updateFilm(id: string, data: Partial<Film>): Promise<void> {
-  const fields = ["titre", "fichier_url", "duree", "annee", "annee_fin", "date_label", "description", "poster_url"];
+  const fields = ["titre", "fichier_url", "duree", "annee", "annee_fin", "date_label", "description", "poster_url", "couverture_forcee"];
   const updates = fields.filter((f) => f in data);
   if (!updates.length) return;
   const values = updates.map((f) => (data as Record<string, unknown>)[f]);

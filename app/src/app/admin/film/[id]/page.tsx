@@ -6,7 +6,7 @@ import SegmentForm from "./components/SegmentForm";
 interface Film {
   id: string; titre: string; fichier_url: string; duree: number;
   annee: number | null; annee_fin: number | null; date_label: string | null;
-  couverture: number;
+  couverture: number; couverture_forcee: number;
 }
 interface Segment {
   id: string; film_id: string; tc_debut: number; tc_fin: number;
@@ -110,6 +110,17 @@ export default function FilmEditorPage() {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  async function toggleCouvertureForce() {
+    const newVal = film!.couverture_forcee ? 0 : 1;
+    await fetch(`/api/films/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ couverture_forcee: newVal }),
+    });
+    load();
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async function handleSave(data: any) {
     const url = editSeg ? `/api/segments/${editSeg.id}` : `/api/films/${id}/segments`;
     const method = editSeg ? "PATCH" : "POST";
@@ -175,6 +186,14 @@ export default function FilmEditorPage() {
                 background: cov === 100 ? "#5cb85c" : "#c8a96e" }} />
             </div>
             <span style={s.coveragePct}>{cov === 100 ? "✓ Complété" : `${cov}%`}</span>
+            <button
+              onClick={toggleCouvertureForce}
+              style={{ ...s.btnForce, background: film.couverture_forcee ? "#5cb85c22" : "transparent",
+                borderColor: film.couverture_forcee ? "#5cb85c88" : "#333",
+                color: film.couverture_forcee ? "#5cb85c" : "#666" }}
+              title={film.couverture_forcee ? "Retirer le marquage complet" : "Marquer comme 100% annoté"}>
+              {film.couverture_forcee ? "✓ Forcé" : "Forcer 100%"}
+            </button>
           </div>
           <a href={`/film/${id}`} target="_blank" style={s.navLink}>Voir public ↗</a>
         </div>
@@ -279,17 +298,15 @@ export default function FilmEditorPage() {
             {!isEmbed && (
               <div style={s.controls}>
                 <button onClick={() => skip(-5)} style={s.btnCtrl}>-5s</button>
+                <button onClick={() => skip(-1)} style={s.btnCtrl}>-1s</button>
                 <button onClick={toggle} style={s.btnPlay}>{playing ? "⏸" : "▶"}</button>
+                <button onClick={() => skip(1)} style={s.btnCtrl}>+1s</button>
                 <button onClick={() => skip(5)} style={s.btnCtrl}>+5s</button>
                 <span style={s.tcDisplay}>{fmt(Math.floor(currentTime))} / {fmt(film.duree)}</span>
-                <input type="range" min={0} max={film.duree} step={1}
-                  value={Math.floor(currentTime)}
-                  onChange={(e) => seek(Number(e.target.value))}
-                  style={s.scrubber} />
               </div>
             )}
 
-            {/* Timeline visuelle */}
+            {/* Timeline visuelle — pleine largeur sous les contrôles */}
             <div style={s.timeline} title="Cliquez sur une zone non annotée pour créer un segment">
               {(() => {
                 let segIdx = 0;
@@ -316,6 +333,14 @@ export default function FilmEditorPage() {
                 <div style={{ ...s.tlCursor, left: `${(currentTime / film.duree) * 100}%` }} />
               )}
             </div>
+
+            {/* Scrubber pleine largeur */}
+            {!isEmbed && (
+              <input type="range" min={0} max={film.duree} step={1}
+                value={Math.floor(currentTime)}
+                onChange={(e) => seek(Number(e.target.value))}
+                style={s.scrubber} />
+            )}
           </div>
         </div>
 
@@ -374,7 +399,9 @@ const s: Record<string, React.CSSProperties> = {
   btnPlay: { padding: "4px 14px", background: "#333", border: "1px solid #444",
     borderRadius: "4px", color: "#fff", cursor: "pointer", fontSize: "1rem" },
   tcDisplay: { fontSize: "0.82rem", color: "#888", marginLeft: "0.25rem", whiteSpace: "nowrap" },
-  scrubber: { flex: 1, accentColor: "#4a9eff" },
+  scrubber: { width: "100%", accentColor: "#4a9eff", margin: "4px 0" },
+  btnForce: { padding: "2px 8px", borderRadius: "4px", border: "1px solid #333",
+    cursor: "pointer", fontSize: "0.75rem", whiteSpace: "nowrap" },
   timeline: { position: "relative", display: "flex", height: "16px",
     background: "#1a1a1a", borderRadius: "3px", overflow: "hidden", cursor: "pointer" },
   tlSeg: { height: "100%", background: "#c8a96e", opacity: 0.85 },
