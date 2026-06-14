@@ -5,6 +5,7 @@ import Frise from "./components/Frise";
 import FilmGrid from "./components/FilmGrid";
 import SearchBar from "./components/SearchBar";
 import SegmentResults from "./components/SegmentResults";
+import SiteLogo from "./components/SiteLogo";
 
 interface Film {
   id: string; titre: string; fichier_url: string; duree: number;
@@ -144,8 +145,9 @@ function HomePage() {
   return (
     <div style={s.page}>
       <header style={s.header}>
-        <span style={s.logo}>Archives Super 8</span>
+        <SiteLogo />
         <nav style={s.nav}>
+          <a href="/apropos" style={s.navLink}>À propos</a>
           <a href="/admin" style={s.navLink}>Administration</a>
         </nav>
       </header>
@@ -194,9 +196,8 @@ const s: Record<string, React.CSSProperties> = {
   page: { minHeight: "100vh", background: "#0d0d0d", color: "#fff", fontFamily: "sans-serif" },
   header: { display: "flex", alignItems: "center", justifyContent: "space-between",
     padding: "0 2rem", height: "56px", borderBottom: "1px solid #1a1a1a" },
-  logo: { fontSize: "1rem", fontWeight: 600, color: "#fff", letterSpacing: "0.03em" },
   nav: { display: "flex", gap: "1.5rem" },
-  navLink: { color: "#555", textDecoration: "none", fontSize: "0.88rem" },
+  navLink: { color: "#aaa", textDecoration: "none", fontSize: "0.88rem" },
   main: { maxWidth: "1300px", margin: "0 auto", padding: "2rem" },
   muted: { color: "#555", fontStyle: "italic" },
 };

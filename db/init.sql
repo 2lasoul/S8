@@ -32,6 +32,15 @@ CREATE TABLE IF NOT EXISTS segments (
   FOREIGN KEY (film_id) REFERENCES films(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+CREATE TABLE IF NOT EXISTS pages (
+  cle VARCHAR(60) NOT NULL,
+  contenu TEXT,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (cle)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+INSERT IGNORE INTO pages (cle, contenu) VALUES ('apropos', '');
+
 CREATE TABLE IF NOT EXISTS referentiel (
   id INT AUTO_INCREMENT NOT NULL,
   categorie ENUM('branche','personne','evenement','lieu') NOT NULL,

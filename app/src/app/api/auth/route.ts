@@ -1,5 +1,10 @@
 import { NextResponse } from "next/server";
-import { setAdminSession, clearAdminSession } from "@/lib/auth";
+import { setAdminSession, clearAdminSession, isAdminAuthenticated } from "@/lib/auth";
+
+export async function GET() {
+  if (await isAdminAuthenticated()) return NextResponse.json({ admin: true });
+  return NextResponse.json({ admin: false }, { status: 401 });
+}
 
 export async function POST(req: Request) {
   const { password } = await req.json();
