@@ -42,7 +42,7 @@ export default function FilmGrid({ films, branches }: Props) {
               : null);
 
           return (
-            <div key={f.id} style={s.card} onClick={() => router.push(`/film/${f.id}`)}>
+            <div key={f.id} id={`film-card-${f.id}`} style={s.card} onClick={() => router.push(`/film/${f.id}`)}>
               {/* Poster */}
               <div style={{ ...s.poster, background: poster ? "#000" : mainColor + "44" }}>
                 {poster

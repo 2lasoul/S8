@@ -44,7 +44,7 @@
 
 ### Interface d'administration (section 5 CDC)
 - [x] **Liste des films** `/admin` — compteurs, barre de couverture, badges statut
-- [x] **Génération de miniature** *(hors CDC)* — bouton 🖼 sur les films MP4, choix parmi 3 frames (25%/50%/75%), sauvegarde dans `public/thumbnails/`, mise à jour `poster_url`
+- [x] **Génération de miniature** *(hors CDC)* — bouton 🖼 sur les films MP4, choix parmi 3 frames (25%/50%/75%), redimensionnée à 453×340px, sauvegarde dans `public/thumbnails/`, mise à jour `poster_url`
 - [x] **Formulaire film** — slug auto, détection durée via `<video>`, validation
 - [x] **Éditeur de segments** `/admin/film/:id`
   - [x] Layout 3 colonnes : segments existants / player / formulaire
@@ -70,7 +70,8 @@
 - [x] **Page d'accueil** `/`
   - [x] Frise chronologique avec détection de lanes (anti-chevauchement visuel)
   - [x] Blocs colorés par branche la plus fréquente dans les segments (triée par occurrence)
-  - [x] Filtres par branche (chips colorés)
+  - [x] Filtres par branche multi-sélection (chips toggle, ET logique OR entre branches)
+  - [x] Clic sur un bloc frise → scroll vers la carte dans la grille
   - [x] Tooltip au survol (titre, période, durée)
   - [x] Grille de cartes films (poster YouTube auto, barre de couverture, tags branches)
   - [x] **Barre de recherche** avec autocomplétion depuis le référentiel (personnes, lieux, événements, branches)

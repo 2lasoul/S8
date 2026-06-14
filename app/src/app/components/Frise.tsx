@@ -120,7 +120,11 @@ export default function Frise({ films, filteredIds, branches, activeBranches, ha
                   opacity: isFiltered ? 1 : 0.2,
                   cursor: "pointer",
                 }}
-                onClick={() => router.push(`/film/${film.id}`)}
+                onClick={() => {
+                  const el = document.getElementById(`film-card-${film.id}`);
+                  if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
+                  else router.push(`/film/${film.id}`);
+                }}
                 onMouseEnter={(e) => setTooltip({ film, x: e.clientX, y: e.clientY })}
                 onMouseMove={(e) => setTooltip((t) => t ? { ...t, x: e.clientX, y: e.clientY } : null)}
                 onMouseLeave={() => setTooltip(null)}

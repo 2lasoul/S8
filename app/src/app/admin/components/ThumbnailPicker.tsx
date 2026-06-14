@@ -35,9 +35,9 @@ export default function ThumbnailPicker({ filmId, fichierUrl, duree, onSaved, on
         clearTimeout(timeout);
         video.removeEventListener("seeked", onSeeked);
         const canvas = document.createElement("canvas");
-        canvas.width = video.videoWidth || 640;
-        canvas.height = video.videoHeight || 360;
-        canvas.getContext("2d")?.drawImage(video, 0, 0);
+        canvas.width = 453;
+        canvas.height = 340;
+        canvas.getContext("2d")?.drawImage(video, 0, 0, 453, 340);
         resolve(canvas.toDataURL("image/png"));
       };
       video.addEventListener("seeked", onSeeked);
