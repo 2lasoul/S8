@@ -12,7 +12,7 @@ interface Props {
   films: Film[];
   filteredIds: Set<string>;
   branches: BrancheRef[];
-  activeBranche: string | null;
+  activeBranches: string[];
   hasActiveFilter?: boolean;
 }
 
@@ -25,7 +25,7 @@ function formatDuration(s: number) {
   return h > 0 ? `${h}h${m.toString().padStart(2, "0")}` : `${m}min`;
 }
 
-export default function Frise({ films, filteredIds, branches, activeBranche, hasActiveFilter }: Props) {
+export default function Frise({ films, filteredIds, branches, activeBranches, hasActiveFilter }: Props) {
   const router = useRouter();
   const [tooltip, setTooltip] = useState<{ film: Film; x: number; y: number } | null>(null);
 
@@ -185,7 +185,7 @@ export default function Frise({ films, filteredIds, branches, activeBranche, has
 
 const s: Record<string, React.CSSProperties> = {
   wrap: { marginBottom: "2.5rem", userSelect: "none" },
-  frise: { position: "relative", width: "100%", marginBottom: "0.75rem" },
+  frise: { position: "relative", width: "100%", marginBottom: "0.75rem", overflow: "hidden" },
   tick: { position: "absolute", top: 0, transform: "translateX(-50%)" },
   tickLine: { width: "1px", background: "#1e1e1e", position: "absolute",
     top: "18px", bottom: "-100vh", left: "50%" },

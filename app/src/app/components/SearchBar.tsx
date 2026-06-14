@@ -7,9 +7,9 @@ interface RefEntry { id: number; valeur: string; categorie: string; }
 
 interface Props {
   branches: BrancheRef[];
-  activeBranche: string | null;
+  activeBranches: string[];
   filters: ActiveFilters;
-  onBrancheChange: (b: string | null) => void;
+  onBrancheToggle: (b: string) => void;
   onFiltersChange: (f: ActiveFilters) => void;
   onReset: () => void;
 }
@@ -95,7 +95,7 @@ const fs: Record<string, React.CSSProperties> = {
     color: "#ccc", borderBottom: "1px solid #222" },
 };
 
-export default function SearchBar({ branches, activeBranche, filters, onBrancheChange, onFiltersChange, onReset }: Props) {
+export default function SearchBar({ branches, activeBranches, filters, onBrancheToggle, onFiltersChange, onReset }: Props) {
   const [input, setInput] = useState("");
   const [suggestions, setSuggestions] = useState<RefEntry[]>([]);
   const [open, setOpen] = useState(false);
@@ -138,7 +138,7 @@ export default function SearchBar({ branches, activeBranche, filters, onBrancheC
     setShowAdvanced(false);
   }
 
-  const hasFilter = !!(activeBranche || filters.personne || filters.lieu || filters.evenement);
+  const hasFilter = !!(activeBranches.length || filters.personne || filters.lieu || filters.evenement);
   const activeFilterCount = [filters.personne, filters.lieu, filters.evenement].filter(Boolean).length;
 
   return (
@@ -235,16 +235,16 @@ export default function SearchBar({ branches, activeBranche, filters, onBrancheC
 
       {/* Chips branche */}
       <div style={s.brancheRow}>
-        <button onClick={() => onBrancheChange(null)}
-          style={{ ...s.chip, ...(activeBranche === null && !hasFilter ? s.chipActive : {}) }}>
+        <button onClick={() => { onReset(); }}
+          style={{ ...s.chip, ...(activeBranches.length === 0 && !hasFilter ? s.chipActive : {}) }}>
           Toutes
         </button>
         {branches.map((b) => {
-          const isActive = activeBranche === b.valeur;
+          const isActive = activeBranches.includes(b.valeur);
           const color = b.couleur ?? "#888";
           return (
             <button key={b.valeur}
-              onClick={() => { onBrancheChange(isActive ? null : b.valeur); }}
+              onClick={() => onBrancheToggle(b.valeur)}
               style={{ ...s.chip,
                 background: isActive ? color + "33" : "transparent",
                 borderColor: isActive ? color : "#2a2a2a",

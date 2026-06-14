@@ -52,7 +52,7 @@ function HomePage() {
   const [allFilms, setAllFilms] = useState<Film[]>([]);
   const [filteredFilms, setFilteredFilms] = useState<Film[]>([]);
   const [branches, setBranches] = useState<BrancheRef[]>([]);
-  const [activeBranche, setActiveBranche] = useState<string | null>(null);
+  const [activeBranches, setActiveBranches] = useState<string[]>([]);
   const [filters, setFilters] = useState<ActiveFilters>({});
   const [segmentResults, setSegmentResults] = useState<SegmentResult[]>([]);
   const [loading, setLoading] = useState(true);
@@ -63,7 +63,8 @@ function HomePage() {
     if (searchParams.get("personne"))  f.personne  = searchParams.get("personne")!;
     if (searchParams.get("lieu"))      f.lieu      = searchParams.get("lieu")!;
     if (searchParams.get("evenement")) f.evenement = searchParams.get("evenement")!;
-    if (searchParams.get("branche"))   { setActiveBranche(searchParams.get("branche")); return; }
+    const b = searchParams.getAll("branche");
+    if (b.length) { setActiveBranches(b); return; }
     if (hasFilters(f)) setFilters(f);
   }, []);
 
@@ -104,32 +105,40 @@ function HomePage() {
 
   // Mise à jour de l'URL
   useEffect(() => {
-    const params = hasFilters(filters)
-      ? filtersToParams(filters)
-      : activeBranche ? new URLSearchParams({ branche: activeBranche }) : new URLSearchParams();
+    let params: URLSearchParams;
+    if (hasFilters(filters)) {
+      params = filtersToParams(filters);
+    } else if (activeBranches.length) {
+      params = new URLSearchParams();
+      activeBranches.forEach((b) => params.append("branche", b));
+    } else {
+      params = new URLSearchParams();
+    }
     router.replace(params.toString() ? `/?${params}` : "/", { scroll: false });
-  }, [JSON.stringify(filters), activeBranche]);
+  }, [JSON.stringify(filters), JSON.stringify(activeBranches)]);
 
   // Films à afficher dans la grille
-  const displayFilms = activeBranche && !hasFilters(filters)
-    ? filteredFilms.filter((f) => f.branches.includes(activeBranche))
+  const displayFilms = activeBranches.length > 0 && !hasFilters(filters)
+    ? filteredFilms.filter((f) => activeBranches.some((b) => f.branches.includes(b)))
     : filteredFilms;
 
   const filteredIds = new Set(displayFilms.map((f) => f.id));
 
   function handleFiltersChange(newFilters: ActiveFilters) {
     setFilters(newFilters);
-    setActiveBranche(null);
+    setActiveBranches([]);
   }
 
-  function handleBrancheChange(b: string | null) {
-    setActiveBranche(b);
+  function handleBrancheToggle(b: string) {
+    setActiveBranches((prev) =>
+      prev.includes(b) ? prev.filter((x) => x !== b) : [...prev, b]
+    );
     setFilters({});
   }
 
   function handleReset() {
     setFilters({});
-    setActiveBranche(null);
+    setActiveBranches([]);
   }
 
   return (
@@ -144,9 +153,9 @@ function HomePage() {
       <main style={s.main}>
         <SearchBar
           branches={branches}
-          activeBranche={activeBranche}
+          activeBranches={activeBranches}
           filters={filters}
-          onBrancheChange={handleBrancheChange}
+          onBrancheToggle={handleBrancheToggle}
           onFiltersChange={handleFiltersChange}
           onReset={handleReset}
         />
@@ -161,7 +170,7 @@ function HomePage() {
               films={allFilms}
               filteredIds={filteredIds}
               branches={branches}
-              activeBranche={activeBranche}
+              activeBranches={activeBranches}
               hasActiveFilter={hasFilters(filters)}
             />
 
