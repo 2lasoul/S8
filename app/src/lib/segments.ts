@@ -14,6 +14,7 @@ export interface Segment {
   branches: string[];
   date_label: string | null;
   note: string | null;
+  a_identifier: number;
   created_at: string;
   updated_at: string;
 }
@@ -59,8 +60,8 @@ export async function createSegment(data: Omit<Segment, "id" | "created_at" | "u
 
   const id = uuidv4();
   await pool.query<ResultSetHeader>(
-    `INSERT INTO segments (id, film_id, tc_debut, tc_fin, titre, personnes, evenements, lieux, branches, date_label, note)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    `INSERT INTO segments (id, film_id, tc_debut, tc_fin, titre, personnes, evenements, lieux, branches, date_label, note, a_identifier)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     [id, data.film_id, data.tc_debut, data.tc_fin,
      data.titre ?? null,
      JSON.stringify(data.personnes ?? []),
@@ -68,7 +69,8 @@ export async function createSegment(data: Omit<Segment, "id" | "created_at" | "u
      JSON.stringify(data.lieux ?? []),
      JSON.stringify(data.branches ?? []),
      data.date_label ?? null,
-     data.note ?? null]
+     data.note ?? null,
+     data.a_identifier ?? 0]
   );
   return id;
 }
@@ -80,7 +82,7 @@ export async function updateSegment(id: string, filmId: string, data: Partial<Se
   }
 
   const jsonFields = ["personnes", "evenements", "lieux", "branches"];
-  const fields = ["tc_debut", "tc_fin", "titre", "personnes", "evenements", "lieux", "branches", "date_label", "note"];
+  const fields = ["tc_debut", "tc_fin", "titre", "personnes", "evenements", "lieux", "branches", "date_label", "note", "a_identifier"];
   const updates = fields.filter((f) => f in data);
   if (!updates.length) return;
 

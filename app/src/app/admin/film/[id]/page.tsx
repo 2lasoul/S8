@@ -12,6 +12,7 @@ interface Segment {
   id: string; film_id: string; tc_debut: number; tc_fin: number;
   titre: string | null; personnes: string[]; evenements: string[];
   lieux: string[]; branches: string[]; date_label: string | null; note: string | null;
+  a_identifier: number;
 }
 interface Referentiel { personnes: string[]; evenements: string[]; lieux: string[]; branches: string[]; }
 interface BrancheColor { valeur: string; couleur: string | null; }
@@ -183,6 +184,7 @@ export default function FilmEditorPage() {
     titre: editSeg.titre ?? "", personnes: editSeg.personnes, evenements: editSeg.evenements,
     lieux: editSeg.lieux, branches: editSeg.branches,
     date_label: editSeg.date_label ?? "", note: editSeg.note ?? "",
+    a_identifier: editSeg.a_identifier ?? 0,
   } : newSegInit ? { tc_debut: newSegInit.tc_debut, tc_fin: newSegInit.tc_fin } : undefined;
 
   return (
@@ -246,6 +248,7 @@ export default function FilmEditorPage() {
                   <div style={s.segHeader}>
                     {!isActive && <div style={{ ...s.segBar, background: barColor }} />}
                     <span style={s.segTc}>{fmt(seg.tc_debut)} → {fmt(seg.tc_fin)}</span>
+                    {seg.a_identifier ? <span style={s.badgeIdentifier}>?</span> : null}
                     <div style={s.segActions}>
                       {!isEmbed && (
                         <button onClick={() => seek(seg.tc_debut)} style={s.btnIcon} title="Lire">▶</button>
@@ -439,6 +442,9 @@ const s: Record<string, React.CSSProperties> = {
   segBar: { width: "3px", height: "16px", background: "#c8a96e",
     borderRadius: "2px", flexShrink: 0 },
   segTc: { fontSize: "0.78rem", color: "#888", flex: 1 },
+  badgeIdentifier: { fontSize: "0.7rem", fontWeight: 700, color: "#e0a95c",
+    background: "#3a2a0a", border: "1px solid #e0a95c55", borderRadius: "10px",
+    padding: "1px 7px", flexShrink: 0 },
   segTitre: { fontSize: "0.85rem", color: "#ccc", margin: "0.2rem 0" },
   segActions: { display: "flex", gap: "2px" },
   tagList: { display: "flex", flexWrap: "wrap", gap: "3px", marginTop: "0.3rem" },

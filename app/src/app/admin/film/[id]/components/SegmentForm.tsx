@@ -13,6 +13,7 @@ interface Segment {
   branches: string[];
   date_label: string;
   note: string;
+  a_identifier: number;
 }
 
 interface Referentiel {
@@ -34,7 +35,7 @@ interface Props {
 const empty: Segment = {
   tc_debut: "", tc_fin: "", titre: "",
   personnes: [], evenements: [], lieux: [], branches: [],
-  date_label: "", note: "",
+  date_label: "", note: "", a_identifier: 0,
 };
 
 function fmt(s: number | "") {
@@ -162,6 +163,19 @@ export default function SegmentForm({ initial, currentTime, filmDuree, referenti
 
       {apiError && <p style={s.err}>{apiError}</p>}
 
+      {/* À identifier */}
+      <button
+        type="button"
+        onClick={() => set("a_identifier", form.a_identifier ? 0 : 1)}
+        style={{
+          ...s.btnIdentifier,
+          background: form.a_identifier ? "#3a2a0a" : "transparent",
+          borderColor: form.a_identifier ? "#e0a95c" : "#333",
+          color: form.a_identifier ? "#e0a95c" : "#666",
+        }}>
+        {form.a_identifier ? "⚠ À identifier" : "⚠ Marquer « À identifier »"}
+      </button>
+
       <div style={s.actions}>
         <button type="button" onClick={onCancel} style={s.btnCancel}>Annuler</button>
         <button type="submit"
@@ -194,4 +208,6 @@ const s: Record<string, React.CSSProperties> = {
     background: "#4a9eff", color: "#fff", fontWeight: "bold", cursor: "pointer", fontSize: "0.85rem" },
   btnCancel: { padding: "0.5rem 1rem", borderRadius: "4px", border: "1px solid #444",
     background: "transparent", color: "#aaa", cursor: "pointer", fontSize: "0.85rem" },
+  btnIdentifier: { padding: "0.5rem 1rem", borderRadius: "4px", border: "1px solid #333",
+    cursor: "pointer", fontSize: "0.85rem", textAlign: "left" as const, width: "100%", transition: "all 0.15s" },
 };
