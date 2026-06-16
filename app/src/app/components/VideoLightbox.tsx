@@ -128,7 +128,7 @@ export default function VideoLightbox({ filmId, filmTitre, fichierUrl, tcDebut, 
             <div style={s.endOverlay}>
               <div style={s.endCard}>
                 <p style={s.endText}>
-                  Plus de résultat trouvé{rechercheLabel ? ` pour "${rechercheLabel}"` : ""}
+                  Plus de résultat trouvé{rechercheLabel ? ` pour "${rechercheLabel}"` : ""} dans cette séquence
                 </p>
                 <div style={s.endActions}>
                   <button onClick={onClose} style={s.btnEndClose}>Fermer</button>
