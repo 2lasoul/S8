@@ -171,6 +171,7 @@ Composant `VideoLightbox` — overlay modal avec backdrop blur :
 - Fermeture : touche Échap, clic sur le fond, bouton ✕
 - Lien "Ouvrir le film ↗" vers `/film/:id` sans perdre la recherche
 - Scroll du body bloqué pendant l'ouverture (`overflow: hidden`)
+- **Arrêt en fin de segment** (MP4 uniquement) — `onTimeUpdate` compare `currentTime` à `tcFin`, pause la vidéo et affiche une modale "Plus de résultat trouvé pour [recherche]" avec choix Fermer / Continuer. Un `ref` `endCheckDisabled` désactive définitivement la vérification après "Continuer" pour éviter une boucle (sans lui, `currentTime` reste ≥ `tcFin` à la reprise et redéclenche la modale immédiatement). Non applicable aux embeds YouTube/Vimeo (pas d'accès à `currentTime` sans l'API officielle).
 
 ### Co-occurrences
 La route `GET /api/referentiel/cooccurrences?valeur=X&categorie=Y` :

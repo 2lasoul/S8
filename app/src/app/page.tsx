@@ -177,7 +177,11 @@ function HomePage() {
             />
 
             {hasFilters(filters) && (
-              <SegmentResults segments={segmentResults} branches={branches} />
+              <SegmentResults
+                segments={segmentResults}
+                branches={branches}
+                rechercheLabel={filters.personne ?? filters.lieu ?? filters.evenement ?? filters.branche}
+              />
             )}
 
             {displayFilms.length === 0 ? (

@@ -81,7 +81,7 @@
   - [x] Filtre actif affiché avec badge + bouton réinitialiser
   - [x] **URL partageable** — filtres encodés dans l'URL (`?personne=Jean+Dupont`)
   - [x] **Liste des segments correspondants** sous la frise (timecode, titre, tags, bouton ▶ Lire)
-  - [x] **Lightbox vidéo** *(hors CDC)* — lecture du segment au bon timecode sans quitter la page de recherche (fermeture Échap / clic fond / ✕, lien "Ouvrir le film ↗")
+  - [x] **Lightbox vidéo** *(hors CDC)* — lecture du segment au bon timecode sans quitter la page de recherche (fermeture Échap / clic fond / ✕, lien "Ouvrir le film ↗"). Lecture stoppée automatiquement à `tc_fin` (MP4 uniquement) avec modale "Plus de résultat trouvé pour [recherche]" → Fermer / Continuer la lecture
 - [x] **Page film** `/film/:id`
   - [x] Player MP4 custom (-10s / ▶ / +10s / scrubber)
   - [x] Bouton plein écran ⛶

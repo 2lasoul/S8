@@ -18,7 +18,7 @@ interface SegmentResult {
 }
 
 interface BrancheRef { valeur: string; couleur: string | null; }
-interface Props { segments: SegmentResult[]; branches: BrancheRef[]; }
+interface Props { segments: SegmentResult[]; branches: BrancheRef[]; rechercheLabel?: string; }
 
 function fmt(s: number) {
   const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), sec = s % 60;
@@ -32,7 +32,7 @@ const CAT_COLOR: Record<string, { bg: string; color: string }> = {
   lieu:      { bg: "#1a3a2a", color: "#6af5a9" },
 };
 
-export default function SegmentResults({ segments, branches }: Props) {
+export default function SegmentResults({ segments, branches, rechercheLabel }: Props) {
   const [lightbox, setLightbox] = useState<SegmentResult | null>(null);
 
   if (!segments.length) return null;
@@ -79,6 +79,7 @@ export default function SegmentResults({ segments, branches }: Props) {
           tcDebut={lightbox.tc_debut}
           tcFin={lightbox.tc_fin}
           segmentTitre={lightbox.titre}
+          rechercheLabel={rechercheLabel}
           onClose={() => setLightbox(null)}
         />
       )}

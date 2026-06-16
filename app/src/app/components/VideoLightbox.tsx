@@ -8,6 +8,7 @@ interface Props {
   tcDebut: number;
   tcFin: number;
   segmentTitre: string | null;
+  rechercheLabel?: string;
   onClose: () => void;
 }
 
@@ -27,9 +28,11 @@ function vimeoEmbedUrl(url: string, startSec: number) {
   return id ? `https://player.vimeo.com/video/${id}?autoplay=1#t=${startSec}s` : null;
 }
 
-export default function VideoLightbox({ filmId, filmTitre, fichierUrl, tcDebut, tcFin, segmentTitre, onClose }: Props) {
+export default function VideoLightbox({ filmId, filmTitre, fichierUrl, tcDebut, tcFin, segmentTitre, rechercheLabel, onClose }: Props) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [ready, setReady] = useState(false);
+  const [endReached, setEndReached] = useState(false);
+  const endCheckDisabled = useRef(false);
 
   const isYoutube = /youtube|youtu\.be/.test(fichierUrl);
   const isVimeo = /vimeo\.com/.test(fichierUrl);
@@ -51,6 +54,21 @@ export default function VideoLightbox({ filmId, filmTitre, fichierUrl, tcDebut, 
     else v.addEventListener("loadedmetadata", onMeta);
     return () => v.removeEventListener("loadedmetadata", onMeta);
   }, [tcDebut]);
+
+  function handleTimeUpdate(e: React.SyntheticEvent<HTMLVideoElement>) {
+    if (endReached || endCheckDisabled.current) return;
+    if (e.currentTarget.currentTime >= tcFin) {
+      e.currentTarget.pause();
+      setEndReached(true);
+    }
+  }
+
+  function handleContinue() {
+    endCheckDisabled.current = true;
+    const v = videoRef.current;
+    if (v) v.play();
+    setEndReached(false);
+  }
 
   // Fermeture avec Échap
   useEffect(() => {
@@ -97,11 +115,26 @@ export default function VideoLightbox({ filmId, filmTitre, fichierUrl, tcDebut, 
               onLoadedMetadata={() => {
                 if (videoRef.current) videoRef.current.currentTime = tcDebut;
               }}
+              onTimeUpdate={handleTimeUpdate}
             />
           ) : (
             <div style={s.embedWrap}>
               <iframe src={embedUrl ?? ""} style={s.embed} allowFullScreen
                 allow="autoplay; encrypted-media" />
+            </div>
+          )}
+
+          {endReached && (
+            <div style={s.endOverlay}>
+              <div style={s.endCard}>
+                <p style={s.endText}>
+                  Plus de résultat trouvé{rechercheLabel ? ` pour "${rechercheLabel}"` : ""}
+                </p>
+                <div style={s.endActions}>
+                  <button onClick={onClose} style={s.btnEndClose}>Fermer</button>
+                  <button onClick={handleContinue} style={s.btnEndContinue}>Continuer la lecture</button>
+                </div>
+              </div>
             </div>
           )}
         </div>
@@ -142,7 +175,17 @@ const s: Record<string, React.CSSProperties> = {
     width: "30px", height: "30px", borderRadius: "6px",
     cursor: "pointer", fontSize: "1rem", display: "flex",
     alignItems: "center", justifyContent: "center" },
-  playerWrap: { background: "#000" },
+  playerWrap: { background: "#000", position: "relative" },
+  endOverlay: { position: "absolute", inset: 0, background: "#000000d8",
+    display: "flex", alignItems: "center", justifyContent: "center", padding: "1.5rem" },
+  endCard: { background: "#1a1a1a", border: "1px solid #2a2a2a", borderRadius: "8px",
+    padding: "1.5rem", maxWidth: "420px", textAlign: "center" },
+  endText: { color: "#ddd", fontSize: "0.95rem", margin: "0 0 1.25rem", lineHeight: 1.5 },
+  endActions: { display: "flex", gap: "0.75rem", justifyContent: "center" },
+  btnEndClose: { padding: "0.55rem 1.1rem", borderRadius: "5px", border: "1px solid #444",
+    background: "transparent", color: "#aaa", cursor: "pointer", fontSize: "0.85rem" },
+  btnEndContinue: { padding: "0.55rem 1.1rem", borderRadius: "5px", border: "none",
+    background: "#4a9eff", color: "#fff", fontWeight: "bold", cursor: "pointer", fontSize: "0.85rem" },
   video: { width: "100%", display: "block", maxHeight: "70vh" },
   embedWrap: { position: "relative", paddingBottom: "56.25%" },
   embed: { position: "absolute", inset: 0, width: "100%", height: "100%", border: "none" },
