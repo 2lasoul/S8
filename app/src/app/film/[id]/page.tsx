@@ -1,6 +1,6 @@
 "use client";
-import { useState, useEffect, useRef, useCallback } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useState, useEffect, useRef, useCallback, Suspense } from "react";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 
 interface Film {
   id: string; titre: string; fichier_url: string; duree: number;
@@ -60,8 +60,13 @@ const TAG_COLORS: Record<string, { bg: string; color: string }> = {
 };
 
 export default function FilmPage() {
+  return <Suspense><FilmPageInner /></Suspense>;
+}
+
+function FilmPageInner() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const videoRef = useRef<HTMLVideoElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const segRefs = useRef<Record<string, HTMLDivElement | null>>({});
@@ -73,6 +78,9 @@ export default function FilmPage() {
   const [currentTime, setCurrentTime] = useState(0);
   const [playing, setPlaying] = useState(false);
   const [capturing, setCapturing] = useState(false);
+  const [excerptFin, setExcerptFin] = useState<number | null>(null);
+  const [excerptEnded, setExcerptEnded] = useState(false);
+  const excerptCheckDisabled = useRef(false);
 
   const load = useCallback(async () => {
     const [fRes, sRes, rRes] = await Promise.all([
@@ -87,6 +95,21 @@ export default function FilmPage() {
   }, [id, router]);
 
   useEffect(() => { load(); }, [load]);
+
+  // Seek auto si ?t= présent dans l'URL
+  const tParam = searchParams.get("t");
+  const finParam = searchParams.get("fin");
+  useEffect(() => {
+    if (!tParam) return;
+    const t = Number(tParam);
+    const fin = finParam ? Number(finParam) : null;
+    const v = videoRef.current;
+    if (!v) return;
+    const doSeek = () => { v.currentTime = t; v.play(); };
+    if (v.readyState >= 1) doSeek();
+    else v.addEventListener("loadedmetadata", doSeek, { once: true });
+    if (fin) setExcerptFin(fin);
+  }, [tParam, finParam]);
 
   const activeSegId = segments.find(
     (s) => currentTime >= s.tc_debut && currentTime < s.tc_fin
@@ -171,13 +194,37 @@ export default function FilmPage() {
                 ref={videoRef}
                 src={film.fichier_url}
                 style={{ ...s.video, maxHeight: panelOpen ? "80vh" : "65vh" }}
-                onTimeUpdate={(e) => setCurrentTime(e.currentTarget.currentTime)}
+                onTimeUpdate={(e) => {
+                  const t = e.currentTarget.currentTime;
+                  setCurrentTime(t);
+                  if (excerptFin && !excerptEnded && !excerptCheckDisabled.current && t >= excerptFin) {
+                    e.currentTarget.pause();
+                    setExcerptEnded(true);
+                  }
+                }}
                 onPlay={() => setPlaying(true)}
                 onPause={() => setPlaying(false)}
               />
             ) : (
               <div style={s.embedWrap}>
                 <iframe src={embedUrl ?? ""} style={s.embed} allowFullScreen />
+              </div>
+            )}
+
+            {/* Modale fin d'extrait */}
+            {excerptEnded && (
+              <div style={s.excerptOverlay}>
+                <div style={s.excerptCard}>
+                  <p style={s.excerptText}>Fin de l'extrait partagé</p>
+                  <div style={s.excerptActions}>
+                    <button onClick={() => router.push("/")} style={s.btnEndClose}>← Retour</button>
+                    <button onClick={() => {
+                      excerptCheckDisabled.current = true;
+                      setExcerptEnded(false);
+                      videoRef.current?.play();
+                    }} style={s.btnEndContinue}>Continuer la lecture</button>
+                  </div>
+                </div>
               </div>
             )}
           </div>
@@ -353,7 +400,17 @@ const s: Record<string, React.CSSProperties> = {
     whiteSpace: "nowrap" },
   layout: { display: "grid", flex: 1, overflow: "hidden", minHeight: 0 },
   playerZone: { overflowY: "auto", padding: "1.5rem", minHeight: 0 },
-  videoWrap: { borderRadius: "6px", overflow: "hidden", background: "#000" },
+  videoWrap: { borderRadius: "6px", overflow: "hidden", background: "#000", position: "relative" },
+  excerptOverlay: { position: "absolute", inset: 0, background: "#000000d8",
+    display: "flex", alignItems: "center", justifyContent: "center" },
+  excerptCard: { background: "#1a1a1a", border: "1px solid #2a2a2a", borderRadius: "8px",
+    padding: "1.5rem", maxWidth: "380px", textAlign: "center" },
+  excerptText: { color: "#ddd", fontSize: "0.95rem", margin: "0 0 1.25rem" },
+  excerptActions: { display: "flex", gap: "0.75rem", justifyContent: "center" },
+  btnEndClose: { padding: "0.55rem 1.1rem", borderRadius: "5px", border: "1px solid #444",
+    background: "transparent", color: "#aaa", cursor: "pointer", fontSize: "0.85rem" },
+  btnEndContinue: { padding: "0.55rem 1.1rem", borderRadius: "5px", border: "none",
+    background: "#4a9eff", color: "#fff", fontWeight: "bold", cursor: "pointer", fontSize: "0.85rem" },
   video: { display: "block", width: "auto", maxWidth: "100%", margin: "0 auto", background: "#000" },
   embedWrap: { position: "relative", paddingBottom: "56.25%" },
   embed: { position: "absolute", inset: 0, width: "100%", height: "100%", border: "none" },

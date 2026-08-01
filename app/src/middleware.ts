@@ -5,7 +5,12 @@ export function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
   // Pages publiques toujours accessibles
-  if (pathname === "/login" || pathname === "/apropos" || pathname.startsWith("/api/auth")) {
+  if (pathname === "/login" || pathname === "/apropos"
+    || pathname.startsWith("/api/auth")
+    || pathname.startsWith("/extrait")
+    || pathname.startsWith("/api/extrait")
+    || pathname.startsWith("/videos/")
+    || pathname.startsWith("/thumbnails/")) {
     return NextResponse.next();
   }
 

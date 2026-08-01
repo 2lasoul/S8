@@ -34,6 +34,15 @@ const CAT_COLOR: Record<string, { bg: string; color: string }> = {
 
 export default function SegmentResults({ segments, branches, rechercheLabel }: Props) {
   const [lightbox, setLightbox] = useState<SegmentResult | null>(null);
+  const [copied, setCopied] = useState<string | null>(null);
+
+  function shareExtrait(seg: SegmentResult) {
+    const url = `${window.location.origin}/extrait/${seg.film_id}?t=${seg.tc_debut}&fin=${seg.tc_fin}`;
+    navigator.clipboard.writeText(url).then(() => {
+      setCopied(seg.id);
+      setTimeout(() => setCopied(null), 2000);
+    });
+  }
 
   if (!segments.length) return null;
 
@@ -65,7 +74,12 @@ export default function SegmentResults({ segments, branches, rechercheLabel }: P
                   ))}
                 </div>
               </div>
-              <button onClick={() => setLightbox(seg)} style={s.btnLire}>▶ Lire</button>
+              <div style={{ display: "flex", gap: "6px", flexShrink: 0 }}>
+                <button onClick={() => shareExtrait(seg)} style={s.btnPartager}>
+                  {copied === seg.id ? "✓ Copié !" : "🔗 Partager"}
+                </button>
+                <button onClick={() => setLightbox(seg)} style={s.btnLire}>▶ Lire</button>
+              </div>
             </div>
           ))}
         </div>
@@ -103,5 +117,8 @@ const s: Record<string, React.CSSProperties> = {
   tag: { fontSize: "0.72rem", padding: "2px 7px", borderRadius: "10px" },
   btnLire: { padding: "5px 14px", borderRadius: "4px", border: "none",
     background: "#1e2a1e", color: "#6af5a9", cursor: "pointer",
-    fontSize: "0.82rem", whiteSpace: "nowrap", flexShrink: 0 },
+    fontSize: "0.82rem", whiteSpace: "nowrap" },
+  btnPartager: { padding: "5px 14px", borderRadius: "4px", border: "1px solid #2a2a4a",
+    background: "#1e1e2a", color: "#6ab0f5", cursor: "pointer",
+    fontSize: "0.82rem", whiteSpace: "nowrap" },
 };
