@@ -200,6 +200,9 @@ export default function FilmPage() {
                 <button onClick={() => videoRef.current?.requestFullscreen()} style={s.btnCtrl} title="Plein écran">
                   ⛶
                 </button>
+                <a href={film.fichier_url} download style={{ ...s.btnCtrl, textDecoration: "none", background: "#fff", color: "#111", border: "1px solid #aaa" }} title="Télécharger la vidéo">
+                  ⬇
+                </a>
               </div>
 
               {/* Barre segments sous les contrôles */}
