@@ -89,6 +89,7 @@ function ExtraitPlayer() {
           <video
             ref={videoRef}
             src={fichierUrl}
+            playsInline
             style={s.video}
             onLoadedMetadata={handleMetadata}
             onTimeUpdate={handleTimeUpdate}

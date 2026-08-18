@@ -193,6 +193,7 @@ function FilmPageInner() {
               <video
                 ref={videoRef}
                 src={film.fichier_url}
+                playsInline
                 style={{ ...s.video, maxHeight: panelOpen ? "80vh" : "65vh" }}
                 onTimeUpdate={(e) => {
                   const t = e.currentTarget.currentTime;

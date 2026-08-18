@@ -111,6 +111,7 @@ export default function VideoLightbox({ filmId, filmTitre, fichierUrl, tcDebut, 
               src={fichierUrl}
               controls
               autoPlay
+              playsInline
               style={s.video}
               onLoadedMetadata={() => {
                 if (videoRef.current) videoRef.current.currentTime = tcDebut;
