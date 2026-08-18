@@ -124,7 +124,6 @@ function FilmPageInner() {
 
   if (!film) return <div style={s.loading}>Chargement…</div>;
 
-  const video = videoRef.current;
   const isYoutube = /youtube|youtu\.be/.test(film.fichier_url);
   const isVimeo = /vimeo\.com/.test(film.fichier_url);
   const isEmbed = isYoutube || isVimeo;
@@ -132,23 +131,26 @@ function FilmPageInner() {
 
   const timeline = buildTimeline(segments, film.duree);
 
-  function seek(t: number) { if (video) video.currentTime = t; }
+  function seek(t: number) { if (videoRef.current) videoRef.current.currentTime = t; }
   function toggle() {
-    if (!video) return;
-    if (video.paused) { video.play(); setPlaying(true); }
-    else { video.pause(); setPlaying(false); }
+    const v = videoRef.current;
+    if (!v) return;
+    if (v.paused) { v.play(); setPlaying(true); }
+    else { v.pause(); setPlaying(false); }
   }
   function skip(d: number) {
-    if (video) video.currentTime = Math.max(0, Math.min(video.currentTime + d, film.duree));
+    const v = videoRef.current;
+    if (v) v.currentTime = Math.max(0, Math.min(v.currentTime + d, film.duree));
   }
 
   async function captureFrame() {
-    if (!video) return;
+    const v = videoRef.current;
+    if (!v) return;
     setCapturing(true);
     const canvas = document.createElement("canvas");
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-    canvas.getContext("2d")?.drawImage(video, 0, 0);
+    canvas.width = v.videoWidth;
+    canvas.height = v.videoHeight;
+    canvas.getContext("2d")?.drawImage(v, 0, 0);
     const filename = `${film.id}_${Math.floor(currentTime)}s.png`;
     try {
       canvas.toBlob(async (blob) => {
@@ -356,7 +358,7 @@ function FilmPageInner() {
                       opacity: activeSegId && !isActive ? 0.4 : 1,
                       transition: "opacity 0.1s, background 0.1s",
                     }}
-                    onClick={() => { if (!isEmbed) { seek(seg.tc_debut); if (video) video.play(); } }}
+                    onClick={() => { if (!isEmbed) { seek(seg.tc_debut); videoRef.current?.play(); } }}
                   >
                     <div style={s.segHeader}>
                       <span style={s.segTc}>{fmt(seg.tc_debut)} → {fmt(seg.tc_fin)}</span>
