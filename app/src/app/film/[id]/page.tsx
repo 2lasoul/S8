@@ -268,9 +268,10 @@ function FilmPageInner() {
                       : "#c8a96e";
                     const isActive = item.seg.id === activeSegId;
                     return (
-                      <div key={i} onClick={() => { seek(item.seg.tc_debut); if (video && !playing) video.play(); }}
+                      <div key={i} onClick={() => { seek(item.seg.tc_debut); videoRef.current?.play(); }}
                         style={{ ...s.segBarSeg, width: `${pct}%`, background: color,
-                          opacity: isActive ? 1 : 0.5 }}
+                          opacity: isActive ? 1 : 0.5,
+                          boxShadow: "inset -1px 0 0 rgba(255,255,255,0.35)" }}
                         title={item.seg.titre ?? fmt(item.seg.tc_debut)} />
                     );
                   }
